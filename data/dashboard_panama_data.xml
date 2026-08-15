@@ -179,6 +179,9 @@
         <field name="measurement_field_ids" eval="[(4, ref('account.field_account_payment__amount'))]"/>
         <field name="measurement_field_id" ref="account.field_account_payment__amount"/>
         <field name="group_by_id" ref="account.field_account_payment__journal_id"/>
+        <field name="sort_order">desc</field>
+        <field name="date_filter_field_id" ref="account.field_account_payment__date"/>
+        <field name="date_filter_option">this_month</field>
         <field name="domain">[('payment_type', '=', 'inbound'), ('state', '=', 'posted')]</field>
         <field name="data_type">sum</field>
         <field name="theme">animated</field>
@@ -258,6 +261,7 @@
         <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_residual_signed'))]"/>
         <field name="measurement_field_id" ref="account.field_account_move__amount_residual_signed"/>
         <field name="group_by_id" ref="account.field_account_move__invoice_payment_term_id"/>
+        <field name="sort_order">desc</field>
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial')), ('invoice_payment_term_id', '!=', False)]</field>
         <field name="data_type">sum</field>
         <field name="theme">animated</field>
@@ -272,6 +276,7 @@
         <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_residual_signed'))]"/>
         <field name="measurement_field_id" ref="account.field_account_move__amount_residual_signed"/>
         <field name="group_by_id" ref="account.field_account_move__partner_id"/>
+        <field name="sort_order">desc</field>
         <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial')), ('invoice_payment_term_id', '!=', False)]</field>
         <field name="data_type">sum</field>
         <field name="limit_record">10</field>
@@ -357,6 +362,9 @@
         <field name="measurement_field_ids" eval="[(4, ref('sale.field_sale_order__amount_total'))]"/>
         <field name="measurement_field_id" ref="sale.field_sale_order__amount_total"/>
         <field name="group_by_id" ref="sale.field_sale_order__user_id"/>
+        <field name="sort_order">desc</field>
+        <field name="date_filter_field_id" ref="sale.field_sale_order__date_order"/>
+        <field name="date_filter_option">this_month</field>
         <field name="domain">[('state', 'in', ('sale', 'done'))]</field>
         <field name="data_type">sum</field>
         <field name="theme">animated</field>
@@ -460,6 +468,7 @@
         <field name="chart_type">column_chart</field>
         <field name="model_id" ref="stock.model_stock_picking"/>
         <field name="group_by_id" ref="stock.field_stock_picking__picking_type_id"/>
+        <field name="sort_order">desc</field>
         <field name="data_type">count</field>
         <field name="theme">animated</field>
     </record>
@@ -471,6 +480,7 @@
         <field name="chart_type">pie_chart</field>
         <field name="model_id" ref="stock.model_stock_picking"/>
         <field name="group_by_id" ref="stock.field_stock_picking__state"/>
+        <field name="sort_order">desc</field>
         <field name="data_type">count</field>
         <field name="theme">animated</field>
     </record>

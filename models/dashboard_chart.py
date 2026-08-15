@@ -3026,9 +3026,6 @@ class DashboardChart(models.Model):
                 all_records = all_records.filtered(
                     lambda nonz: getattr(nonz, conf_obj.sub_group_by)
                 )
-        if conf_obj.limit_record > 0:
-            all_records = all_records[: conf_obj.limit_record]
-
         def group_by_func(rec):
             if not hasattr(rec._fields[conf_obj.group_by], "selection"):
                 return getattr(rec, conf_obj.group_by)
@@ -3066,11 +3063,14 @@ class DashboardChart(models.Model):
             )
         if not data_list:
             return {"type": "error", "message": "No Data to display!"}
-        return sorted(
+        sorted_data = sorted(
             data_list,
-            key=lambda data: data.get("value"),
-            reverse=conf_obj.sort_order == "desc",
+            key=lambda data: data.get("value") or 0,
+            reverse=conf_obj.sort_order != "asc",
         )
+        if conf_obj.limit_record > 0:
+            sorted_data = sorted_data[: conf_obj.limit_record]
+        return sorted_data
 
     def get_map_chart_data(self, conf_obj):
         """
