@@ -1,7 +1,8 @@
 /** @odoo-module **/
 
-import { Component, onMounted, useEffect, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { isMobileOS } from "@web/core/browser/feature_detection";
 
 export class ColumnChart extends Component {
   static template = "mba_bi_dashboard.ColumnChart";
@@ -18,190 +19,191 @@ export class ColumnChart extends Component {
 
   setup() {
     this.orm = useService("orm");
-    this.root = null;
-    this.themeMap = {
-      animated: am5themes_Animated,
-      frozen: am5themes_Frozen,
-      kelly: am5themes_Kelly,
-      material: am5themes_Material,
-      moonrise: am5themes_Moonrise,
-      spirited: am5themes_Spirited,
-    };
+    this.chartInstance = null;
+    this.resizeHandler = null;
     this.state = useState({ isError: false, errorMessage: false });
+
+    this.themePalettes = {
+      animated: ["#71639e", "#17a2b8", "#28a745", "#ffac00", "#e06d53", "#6f42c1", "#20c997", "#007bff"],
+      frozen: ["#007bff", "#17a2b8", "#6f42c1", "#5bc0de", "#337ab7", "#4b9cd3", "#2a6496", "#1c3b70"],
+      kelly: ["#28a745", "#ffac00", "#e06d53", "#71639e", "#17a2b8", "#6f42c1", "#d9534f", "#f0ad4e"],
+      material: ["#2196f3", "#4caf50", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4", "#ff5722", "#607d8b"],
+      moonrise: ["#2c3e50", "#34495e", "#7f8c8d", "#95a5a6", "#bdc3c7", "#16a085", "#27ae60", "#2980b9"],
+      spirited: ["#e74c3c", "#e67e22", "#f1c40f", "#2ecc71", "#1abc9c", "#3498db", "#9b59b6", "#34495e"],
+    };
+
     useEffect(
       () => {
         this.render_column_chart();
       },
-      () => [this.props.chartId, this.props.recordSets, this.props.data],
+      () => [this.props.chartId, this.props.recordSets, this.props.data, this.props.theme]
     );
+
     onMounted(() => {
       this.render_column_chart();
+    });
+
+    onWillUnmount(() => {
+      if (this.resizeHandler) {
+        window.removeEventListener("resize", this.resizeHandler);
+        this.resizeHandler = null;
+      }
+      if (this.chartInstance) {
+        this.chartInstance.dispose();
+        this.chartInstance = null;
+      }
     });
   }
 
   render_column_chart() {
-    var data = this.props.recordSets;
-    if (this.root) {
-      this.root.dispose();
+    const data = this.props.recordSets;
+    const container = document.getElementById("column_chart__" + this.props.chartId);
+
+    if (this.chartInstance) {
+      this.chartInstance.dispose();
+      this.chartInstance = null;
     }
-    if (typeof data == "object" && !Array.isArray(data)) {
+
+    if (!container) return;
+
+    if (typeof data === "object" && !Array.isArray(data)) {
       this.state.isError = true;
-      this.state.errorMessage = data.message;
+      this.state.errorMessage = data.message || "Error al cargar datos";
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      this.state.isError = true;
+      this.state.errorMessage = "No Data to display!";
       return;
     }
 
     this.state.isError = false;
     this.state.errorMessage = false;
-    this.root = am5.Root.new("column_chart__" + this.props.chartId);
-    const theme = this.themeMap[this.props.theme];
-    this.root.setThemes([theme.new(this.root)]);
+
+    this.chartInstance = echarts.init(container);
+
+    const categories = data.map((d) => d.category);
+    const valueKeys = Object.keys(data[0]).filter(
+      (k) => !["category", "record_id", "isSubGroupBy"].includes(k)
+    );
+
+    const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
 
     const formatLabel = (text, maxLength = 15) => {
-      if (!text) return text;
-      if (typeof text !== "string") return text;
-      if (text.length <= maxLength) return text;
-      return (
-        text
-          .replace(/\[/g, "(")
-          .replace(/\]/g, ")")
-          .substring(0, maxLength - 3) + "..."
-      );
+      if (!text || typeof text !== "string") return text;
+      return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
     };
 
-    // Apply formatting to your data
-    data = data.map((item) => ({
-      ...item,
-      category: formatLabel(item.category), // Assuming 'category' is your label field
+    const series = valueKeys.map((key, idx) => ({
+      name: key.replace(/^ - /, ""),
+      type: "bar",
+      barMaxWidth: 35,
+      itemStyle: {
+        borderRadius: [4, 4, 0, 0],
+        color: palette[idx % palette.length],
+      },
+      data: data.map((d) => ({
+        value: d[key] || 0,
+        record_id: d.record_id,
+        category: d.category,
+      })),
+      label: {
+        show: true,
+        position: "top",
+        formatter: (params) => {
+          const val = params.value;
+          return val ? Number(val).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : "";
+        },
+        color: "#495057",
+        fontWeight: "bold",
+        fontSize: 11,
+      },
+      emphasis: {
+        focus: "series",
+      },
     }));
 
-    var chart = this.root.container.children.push(
-      am5xy.XYChart.new(this.root, {
-        panX: false,
-        panY: false,
-        paddingLeft: 0,
-        wheelX: "panX",
-        wheelY: "zoomX",
-        layout: this.root.verticalLayout,
-      }),
-    );
+    const option = {
+      color: palette,
+      animationDuration: 800,
+      tooltip: {
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
+        formatter: (params) => {
+          if (!params || !params.length) return "";
+          let res = `<strong>${params[0].name}</strong><br/>`;
+          params.forEach((item) => {
+            const val = Number(item.value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            res += `${item.marker} ${item.seriesName}: <strong>${val}</strong><br/>`;
+          });
+          return res;
+        },
+      },
+      legend: {
+        show: valueKeys.length > 1,
+        bottom: 0,
+        type: "scroll",
+      },
+      grid: {
+        left: "5%",
+        right: "5%",
+        top: "12%",
+        bottom: valueKeys.length > 1 ? "15%" : "8%",
+        containLabel: true,
+      },
+      xAxis: {
+        type: "category",
+        data: categories,
+        axisLabel: {
+          interval: 0,
+          rotate: isMobileOS() ? -35 : (categories.length > 6 ? -25 : 0),
+          formatter: (value) => formatLabel(value, isMobileOS() ? 10 : 16),
+          color: "#495057",
+          fontSize: 11,
+        },
+      },
+      yAxis: {
+        type: "value",
+        splitLine: { lineStyle: { type: "dashed", opacity: 0.3 } },
+        axisLabel: {
+          formatter: (val) => val >= 1000 ? (val / 1000).toFixed(0) + "k" : val,
+        },
+      },
+      series: series,
+    };
 
-    var legend = chart.children.push(
-      am5.Legend.new(this.root, {
-        centerX: am5.p50,
-        x: am5.p50,
-      }),
-    );
+    this.chartInstance.setOption(option);
 
-    var xRenderer = am5xy.AxisRendererX.new(this.root, {
-      cellStartLocation: 0.1,
-      cellEndLocation: 0.9,
-      minorGridEnabled: true,
-    });
-
-    xRenderer.labels.template.setAll({
-      rotation: 0,
-      centerY: am5.p50,
-      centerX: am5.p50,
-      paddingRight: 15,
-      maxWidth: 100, // Set maximum width before wrapping
-      oversizedBehavior: "wrap", // Enable text wrapping
-      textAlign: "center",
-    });
-
-    var xAxis = chart.xAxes.push(
-      am5xy.CategoryAxis.new(this.root, {
-        categoryField: "category",
-        renderer: xRenderer,
-        // tooltip: am5.Tooltip.new(this.root, {}),
-      }),
-    );
-
-    xAxis.set(
-      "tooltip",
-      am5.Tooltip.new(this.root, {
-        labelText: "{category}",
-      }),
-    );
-
-    xRenderer.grid.template.setAll({
-      location: 1,
-    });
-
-    xAxis.data.setAll(data);
-
-    var yAxis = chart.yAxes.push(
-      am5xy.ValueAxis.new(this.root, {
-        renderer: am5xy.AxisRendererY.new(this.root, {
-          strokeOpacity: 0.1,
-        }),
-      }),
-    );
-
-    var self = this;
-    function makeSeries(name, fieldName) {
-      var series = chart.series.push(
-        am5xy.ColumnSeries.new(self.root, {
-          name: name,
-          xAxis: xAxis,
-          yAxis: yAxis,
-          valueYField: fieldName,
-          categoryXField: "category",
-        }),
-      );
-
-      series.columns.template.setAll({
-        tooltipText: "{name}, {categoryX}:{valueY}",
-        width: am5.percent(90),
-        tooltipY: 0,
-        strokeOpacity: 0,
-      });
-
-      series.columns.template.events.on("click", function (ev) {
-        if (self.props.update_chart) {
-          self.props.update_chart(
-            parseInt(self.props.chartId),
-            "column_chart",
-            ev.target.dataItem.dataContext,
-          );
-        }
-      });
-
-      series.data.setAll(data);
-      series.appear();
-
-      series.bullets.push(function () {
-        return am5.Bullet.new(self.root, {
-          locationY: 0,
-          sprite: am5.Label.new(self.root, {
-            text: "{valueY}",
-            fill: self.root.interfaceColors.get("alternativeText"),
-            centerY: 0,
-            centerX: am5.p50,
-            populateText: true,
-          }),
+    this.chartInstance.on("click", (params) => {
+      if (this.props.update_chart && params.data) {
+        this.props.update_chart(parseInt(this.props.chartId), "column_chart", {
+          category: params.data.category,
+          record_id: params.data.record_id,
         });
-      });
-
-      legend.data.push(series);
-    }
-
-    let keys = Object.keys(data[0]).filter(
-      (k) => k !== "category" && k !== "record_id" && k !== "isSubGroupBy",
-    );
-
-    for (let key = 0; key < keys.length; key++) {
-      makeSeries(keys[key], keys[key]);
-    }
-
-    chart.appear(1000, 100);
-    let exporting = am5plugins_exporting.Exporting.new(this.root, {
-      filePrefix: "my_chart",
-      dataSource: chart.series.getIndex(0), // optional
-    });
-    this.root.events.once("frameended", () => {
-      if (this.props.export) {
-        this.props.export(exporting);
       }
     });
+
+    if (this.props.export) {
+      this.props.export({
+        export: async (type = "png") => {
+          return this.chartInstance.getDataURL({
+            type: "png",
+            pixelRatio: 2,
+            backgroundColor: "#fff",
+          });
+        },
+      });
+    }
+
+    if (!this.resizeHandler) {
+      this.resizeHandler = () => {
+        if (this.chartInstance) {
+          this.chartInstance.resize();
+        }
+      };
+      window.addEventListener("resize", this.resizeHandler);
+    }
   }
 }
+
