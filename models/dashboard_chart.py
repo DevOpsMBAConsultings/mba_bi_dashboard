@@ -1843,21 +1843,76 @@ class DashboardChart(models.Model):
             all_records = all_records[: conf_obj.limit_record]
 
         count = 0
-        if conf_obj.data_type == "count":
+        is_monetary = False
+
+        if conf_obj.model == "stock.quant":
+            is_monetary = True
+            if "proyectado" in (conf_obj.name or "").lower():
+                # Inv. Operativo Proyectado
+                StockQuant = self.env["stock.quant"]
+                quants = StockQuant.search([("location_id.usage", "=", "internal")])
+                val_pos = sum(
+                    q.quantity * (q.product_id.standard_price or 0.0)
+                    for q in quants
+                    if q.quantity > 0
+                )
+                val_neg = sum(
+                    abs(q.quantity) * (q.product_id.standard_price or 0.0)
+                    for q in quants
+                    if q.quantity < 0
+                )
+                val_transit = 0.0
+                if "purchase.order.line" in self.env:
+                    po_lines = self.env["purchase.order.line"].search(
+                        [("order_id.state", "in", ("purchase", "done"))]
+                    )
+                    val_transit = sum(
+                        (pol.product_qty - pol.qty_received) * (pol.price_unit or 0.0)
+                        for pol in po_lines
+                        if (pol.product_qty or 0.0) > (pol.qty_received or 0.0)
+                    )
+                count = val_pos + val_transit - val_neg
+            elif (
+                "déficit" in (conf_obj.name or "").lower()
+                or "deficit" in (conf_obj.name or "").lower()
+            ):
+                # Déficit Negativo
+                count = - sum(
+                    abs(q.quantity) * (q.product_id.standard_price or 0.0)
+                    for q in all_records
+                    if q.quantity < 0
+                )
+            else:
+                # Físico en Bodega (Stock > 0)
+                count = sum(
+                    q.quantity * (q.product_id.standard_price or 0.0)
+                    for q in all_records
+                    if q.quantity > 0
+                )
+        elif conf_obj.model == "purchase.order.line" and any(
+            kw in (conf_obj.name or "").lower() for kw in ["tránsito", "transito", "pendiente"]
+        ):
+            is_monetary = True
+            count = sum(
+                (pol.product_qty - pol.qty_received) * (pol.price_unit or 0.0)
+                for pol in all_records
+                if (pol.product_qty or 0.0) > (pol.qty_received or 0.0)
+            )
+        elif conf_obj.data_type == "count":
             count = len(all_records)
         elif conf_obj.data_type in ["sum", "average"]:
             count_list = [
                 getattr(record, conf_obj.measurement_field_id.name)
                 for record in all_records
+                if conf_obj.measurement_field_id
             ]
-            count = sum(count_list)
+            count = sum(count_list) if count_list else 0
             if conf_obj.data_type == "average" and count != 0:
                 count /= len(count_list)
         if conf_obj.is_apply_multiplier and conf_obj.chart_multiplier_ids:
             if conf_obj.data_type in ["count", "sum", "average"]:
                 count *= conf_obj.chart_multiplier_ids[0].get("multiplier")
         # Determine if value should be formatted as currency
-        is_monetary = False
         company = (
             self.env["res.company"].browse(conf_obj.company)
             if conf_obj.company

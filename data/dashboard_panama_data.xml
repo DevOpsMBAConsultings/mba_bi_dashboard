@@ -385,14 +385,44 @@
         <field name="menu_sequence">5</field>
     </record>
 
-    <!-- KPI 1: Envíos Pendientes -->
-    <record id="kpi_envios_pendientes" model="dashboard.chart">
-        <field name="name">Entregas Pendientes a Clientes</field>
+    <!-- KPI 1: Físico en Bodega (Stock > 0) -->
+    <record id="kpi_inventario_fisico_bruto" model="dashboard.chart">
+        <field name="name">Físico en Bodega (Stock > 0)</field>
         <field name="dashboard_id" ref="dashboard_panama_inventario"/>
         <field name="chart_type">kpi</field>
-        <field name="model_id" ref="stock.model_stock_picking"/>
-        <field name="data_type">count</field>
-        <field name="domain">[('picking_type_code', '=', 'outgoing'), ('state', 'in', ('assigned', 'confirmed', 'waiting'))]</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('location_id.usage', '=', 'internal'), ('quantity', '>', 0)]</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#28a745</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">cubes</field>
+    </record>
+
+    <!-- KPI 2: Déficit Vtas. Negativas -->
+    <record id="kpi_inventario_deficit_negativo" model="dashboard.chart">
+        <field name="name">Déficit Vtas. Negativas</field>
+        <field name="dashboard_id" ref="dashboard_panama_inventario"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('location_id.usage', '=', 'internal'), ('quantity', '<', 0)]</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#e06d53</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">exclamation-triangle</field>
+    </record>
+
+    <!-- KPI 3: Compras en Tránsito -->
+    <record id="kpi_inventario_compras_transito" model="dashboard.chart">
+        <field name="name">Compras en Tránsito</field>
+        <field name="dashboard_id" ref="dashboard_panama_inventario"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="purchase.model_purchase_order_line"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('order_id.state', 'in', ('purchase', 'done'))]</field>
         <field name="layout_type">layout1</field>
         <field name="background_color">#007bff</field>
         <field name="font_color">#ffffff</field>
@@ -400,19 +430,19 @@
         <field name="default_icon">truck</field>
     </record>
 
-    <!-- KPI 2: Recepciones Pendientes -->
-    <record id="kpi_recepciones_pendientes" model="dashboard.chart">
-        <field name="name">Recepciones Pendientes de Proveedores</field>
+    <!-- KPI 4: Inv. Operativo Proyectado -->
+    <record id="kpi_inventario_operativo_proyectado" model="dashboard.chart">
+        <field name="name">Inv. Operativo Proyectado</field>
         <field name="dashboard_id" ref="dashboard_panama_inventario"/>
         <field name="chart_type">kpi</field>
-        <field name="model_id" ref="stock.model_stock_picking"/>
-        <field name="data_type">count</field>
-        <field name="domain">[('picking_type_code', '=', 'incoming'), ('state', 'in', ('assigned', 'confirmed', 'waiting'))]</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('location_id.usage', '=', 'internal')]</field>
         <field name="layout_type">layout1</field>
-        <field name="background_color">#6f42c1</field>
+        <field name="background_color">#71639e</field>
         <field name="font_color">#ffffff</field>
         <field name="icon_option">default</field>
-        <field name="default_icon">cubes</field>
+        <field name="default_icon">bullseye</field>
     </record>
 
     <!-- Gráfico 1: Movimientos por Tipo de Almacén -->
