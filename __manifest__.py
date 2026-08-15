@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
-    "name": "MBA Tableros BI y Analítica de Negocios (Panamá)",
+    "name": "Tableros de Inteligencia de Negocio BI (MBA Consultings)",
     "version": "18.0.1.0.9",
     "category": "Productivity/Analytics",
     "summary": "Cuadros de mando interactivos, KPIs ejecutivos y analítica en tiempo real para Panamá | MBA Consultings",
