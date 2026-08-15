@@ -1909,7 +1909,7 @@ class DashboardChart(models.Model):
                 lambda inv: inv.invoice_payment_term_id
                 and not any(
                     kw in (inv.invoice_payment_term_id.name or "").lower()
-                    for kw in ("contado", "inmediato", "immediate", " 0 día", " 0 dia", "0 días", "0 dias")
+                    for kw in ("contado", "inmediato", "immediate")
                 )
             )
             count_list = [
@@ -2723,7 +2723,7 @@ class DashboardChart(models.Model):
                 lambda inv: inv.invoice_payment_term_id
                 and not any(
                     kw in (inv.invoice_payment_term_id.name or "").lower()
-                    for kw in ("contado", "inmediato", "immediate", " 0 día", " 0 dia", "0 días", "0 dias")
+                    for kw in ("contado", "inmediato", "immediate")
                 )
             )
 
