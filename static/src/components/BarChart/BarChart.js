@@ -367,19 +367,25 @@ export class BarChart extends Component {
           return bullet;
         });
 
-        series.bullets.push(function () {
-          return am5.Bullet.new(self.root, {
-            locationX: 1,
-            locationY: 0.5,
-            sprite: am5.Label.new(self.root, {
-              centerX: am5.p100,
-              centerY: am5.p50,
-              text: "{name}",
-              fill: am5.color(0xffffff),
-              populateText: true,
-            }),
+        // Solo mostrar el nombre de la serie sobre la barra cuando hay
+        // más de una serie (para diferenciarlas). Con una sola serie,
+        // el nombre ya está en la leyenda de abajo y repetirlo en cada
+        // barra tapaba el número.
+        if (keys.length > 1) {
+          series.bullets.push(function () {
+            return am5.Bullet.new(self.root, {
+              locationX: 1,
+              locationY: 0.5,
+              sprite: am5.Label.new(self.root, {
+                centerX: am5.p100,
+                centerY: am5.p50,
+                text: "{name}",
+                fill: am5.color(0xffffff),
+                populateText: true,
+              }),
+            });
           });
-        });
+        }
 
         series.data.setAll(data);
         series.appear();
