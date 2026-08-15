@@ -347,10 +347,13 @@ export class BarChart extends Component {
 
         series.bullets.push(function () {
           var bullet = am5.Bullet.new(self.root, {
-            locationX: 1,
+            locationX: 0,
             locationY: 0.5,
             sprite: am5.Label.new(self.root, {
               centerY: am5.p50,
+              centerX: am5.p0,
+              dx: 8,
+              fill: am5.color(0xffffff),
               text: "{valueX}",
               populateText: true,
             }),
