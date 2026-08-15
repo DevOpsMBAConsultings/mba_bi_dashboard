@@ -2,6 +2,7 @@
 
 import { Component, onMounted, useEffect, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { isMobileOS } from "@web/core/browser/feature_detection";
 
 export class BarChart extends Component {
   static template = "mba_bi_dashboard.BarChart";
@@ -275,6 +276,14 @@ export class BarChart extends Component {
         centerX: am5.p100,
         paddingRight: 10,
       });
+
+      // En mobile, los nombres largos se amontonan al rotarse — se truncan con "...".
+      // En desktop no cambia nada (se deja la rotación tal cual está hoy).
+      if (isMobileOS()) {
+        yAxisRenderer.labels.template.adapters.add("text", (text) =>
+          formatLabel(text),
+        );
+      }
 
       var yAxis = chart.yAxes.push(
         am5xy.CategoryAxis.new(this.root, {
