@@ -1892,6 +1892,16 @@ class DashboardChart(models.Model):
                     for q in all_records
                     if q.quantity > 0
                 )
+        elif conf_obj.model == "res.partner" and any(
+            kw in (conf_obj.name or "").lower() for kw in ["inactivo", "inactivos", "dormido", "dormidos"]
+        ):
+            date_30d = datetime.now() - timedelta(days=30)
+            all_recent_so = self.env["sale.order"].search([("date_order", ">=", date_30d)])
+            active_customer_ids = set(all_recent_so.mapped("partner_id.id"))
+            inactive_customers = all_records.filtered(
+                lambda c: c.customer_rank > 0 and c.id not in active_customer_ids
+            )
+            count = len(inactive_customers)
         elif conf_obj.model == "purchase.order.line" and any(
             kw in (conf_obj.name or "").lower() for kw in ["tránsito", "transito", "pendiente"]
         ):
