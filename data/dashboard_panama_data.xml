@@ -283,6 +283,37 @@
         <field name="theme">animated</field>
     </record>
 
+    <!-- Gráfico 3: Top Proveedores con Saldo por Pagar (CxP) -->
+    <record id="chart_top_cxp_proveedores" model="dashboard.chart">
+        <field name="name">Top Proveedores con Saldo por Pagar (CxP)</field>
+        <field name="dashboard_id" ref="dashboard_panama_cxc"/>
+        <field name="chart_type">bar_chart</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_residual_signed'))]"/>
+        <field name="measurement_field_id" ref="account.field_account_move__amount_residual_signed"/>
+        <field name="group_by_id" ref="account.field_account_move__partner_id"/>
+        <field name="sort_order">desc</field>
+        <field name="domain">[('move_type', '=', 'in_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial'))]</field>
+        <field name="data_type">sum</field>
+        <field name="limit_record">10</field>
+        <field name="theme">animated</field>
+    </record>
+
+    <!-- Gráfico 4: Distribución de CxP por Plazo de Proveedores -->
+    <record id="chart_cxp_plazo_pago" model="dashboard.chart">
+        <field name="name">Distribución de CxP por Plazo de Proveedores</field>
+        <field name="dashboard_id" ref="dashboard_panama_cxc"/>
+        <field name="chart_type">doughnut_chart</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_residual_signed'))]"/>
+        <field name="measurement_field_id" ref="account.field_account_move__amount_residual_signed"/>
+        <field name="group_by_id" ref="account.field_account_move__invoice_payment_term_id"/>
+        <field name="sort_order">desc</field>
+        <field name="domain">[('move_type', '=', 'in_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial'))]</field>
+        <field name="data_type">sum</field>
+        <field name="theme">animated</field>
+    </record>
+
     <function name="create_update_menu" model="dashboard.dashboard">
         <value eval="[ref('dashboard_panama_cxc')]" />
     </function>

@@ -1929,6 +1929,11 @@ class DashboardChart(models.Model):
                 if conf_obj.measurement_field_id
             ]
             count = sum(count_list) if count_list else 0
+            if "in_invoice" in str(conf_obj.domain) and any(
+                f in (conf_obj.measurement_field_id.name if conf_obj.measurement_field_id else "")
+                for f in ["amount_residual_signed", "amount_total_signed"]
+            ):
+                count = abs(count)
             if conf_obj.data_type == "average" and count != 0:
                 count /= len(count_list)
         if conf_obj.is_apply_multiplier and conf_obj.chart_multiplier_ids:
@@ -2440,6 +2445,13 @@ class DashboardChart(models.Model):
         for measurement in conf_obj.measurement_field_ids:
             field_desc = measurement.field_description
             measure_value = getattr(record, measurement.name)
+            if getattr(record, "move_type", False) == "in_invoice" and measurement.name in [
+                "amount_residual_signed",
+                "amount_total_signed",
+                "amount_untaxed_signed",
+                "amount_tax_signed",
+            ]:
+                measure_value = abs(measure_value or 0.0)
             multiplier = 1
             if conf_obj.is_apply_multiplier:
                 matched = next(
