@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, onMounted, useEffect, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
 export class MapChart extends Component {
@@ -18,168 +18,167 @@ export class MapChart extends Component {
 
   setup() {
     this.orm = useService("orm");
-    this.root = null;
-    this.themeMap = {
-      animated: am5themes_Animated,
-      frozen: am5themes_Frozen,
-      kelly: am5themes_Kelly,
-      material: am5themes_Material,
-      moonrise: am5themes_Moonrise,
-      spirited: am5themes_Spirited,
-    };
+    this.chartInstance = null;
+    this.resizeHandler = null;
     this.state = useState({ isError: false, errorMessage: false });
+
+    this.themePalettes = {
+      animated: ["#e0f3f8", "#71639e", "#2c3e50"],
+      frozen: ["#e0f7fa", "#007bff", "#1c3b70"],
+      kelly: ["#e8f5e9", "#28a745", "#1b5e20"],
+      material: ["#e3f2fd", "#2196f3", "#0d47a1"],
+      moonrise: ["#eceff1", "#607d8b", "#263238"],
+      spirited: ["#fff3e0", "#e67e22", "#b71c1c"],
+    };
+
     useEffect(
       () => {
         this.render_map_chart();
       },
-      () => [this.props.chartId, this.props.recordSets, this.props.data],
+      () => [this.props.chartId, this.props.recordSets, this.props.data, this.props.theme]
     );
+
     onMounted(() => {
       this.render_map_chart();
     });
+
+    onWillUnmount(() => {
+      if (this.resizeHandler) {
+        window.removeEventListener("resize", this.resizeHandler);
+        this.resizeHandler = null;
+      }
+      if (this.chartInstance) {
+        this.chartInstance.dispose();
+        this.chartInstance = null;
+      }
+    });
   }
 
-  async render_map_chart() {
+  render_map_chart() {
     let data = this.props.recordSets;
+    const container = document.getElementById("map_chart__" + this.props.chartId);
+
+    if (this.chartInstance) {
+      this.chartInstance.dispose();
+      this.chartInstance = null;
+    }
+
+    if (!container) return;
+
     if (typeof data == "object" && !Array.isArray(data)) {
       this.state.isError = true;
-      this.state.errorMessage = data.message;
+      this.state.errorMessage = data.message || "Error al cargar datos";
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      this.state.isError = true;
+      this.state.errorMessage = "No Data to display!";
       return;
     }
 
     this.state.isError = false;
     this.state.errorMessage = false;
-    if (this.root) {
-      this.root.dispose();
+
+    if (window.am5geodata_worldLow) {
+      echarts.registerMap("world", window.am5geodata_worldLow);
     }
 
-    this.root = am5.Root.new("map_chart__" + this.props.chartId);
-    this.root.setThemes([am5themes_Animated.new(this.root)]);
-    const formatLabel = (text, maxLength = 15) => {
-      if (!text) return text;
-      if (typeof text !== "string") return text;
-      if (text.length <= maxLength) return text;
-      return (
-        text
-          .replace(/\[/g, "(")
-          .replace(/\]/g, ")")
-          .substring(0, maxLength - 3) + "..."
-      );
+    this.chartInstance = echarts.init(container);
+
+    let maxVal = 0;
+    data.forEach((d) => {
+      const v = Number(d.value) || 0;
+      if (v > maxVal) maxVal = v;
+    });
+    if (maxVal === 0) maxVal = 100;
+
+    const mapColors = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+
+    const chartData = data.map((d) => ({
+      name: d.name || d.category,
+      value: d.value || 0,
+      id: d.id,
+      record_id: d.record_id,
+    }));
+
+    const option = {
+      tooltip: {
+        trigger: "item",
+        formatter: (params) => {
+          if (isNaN(params.value)) {
+            return `<strong>${params.name}</strong><br/>Sin datos`;
+          }
+          const val = Number(params.value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+          return `<strong>${params.name}</strong><br/>Valor: <strong>${val}</strong>`;
+        },
+      },
+      visualMap: {
+        min: 0,
+        max: maxVal,
+        text: ["Alto", "Bajo"],
+        realtime: false,
+        calculable: true,
+        inRange: {
+          color: mapColors,
+        },
+        bottom: 10,
+        left: 10,
+        textStyle: {
+          fontSize: 10,
+          color: "#495057",
+        },
+      },
+      series: [
+        {
+          name: this.props.name || "World Map",
+          type: "map",
+          map: "world",
+          roam: true,
+          emphasis: {
+            label: { show: true, fontSize: 11 },
+            itemStyle: { areaColor: "#ffac00" },
+          },
+          itemStyle: {
+            borderColor: "#ced4da",
+            borderWidth: 0.8,
+          },
+          data: chartData,
+        },
+      ],
     };
 
-    // Apply formatting to your data
-    data = data.map((item) => ({
-      ...item,
-      category: formatLabel(item.category), // Assuming 'category' is your label field
-    }));
-    var chart = this.root.container.children.push(
-      am5map.MapChart.new(this.root, {}),
-    );
+    this.chartInstance.setOption(option);
 
-    var polygonSeries = chart.series.push(
-      am5map.MapPolygonSeries.new(this.root, {
-        geoJSON: am5geodata_worldLow,
-        exclude: ["AQ"],
-      }),
-    );
-
-    var bubbleSeries = chart.series.push(
-      am5map.MapPointSeries.new(this.root, {
-        valueField: "value",
-        calculateAggregates: true,
-        polygonIdField: "id",
-      }),
-    );
-
-    var circleTemplate = am5.Template.new({});
-
-    bubbleSeries.bullets.push(function (root, series, dataItem) {
-      var container = am5.Container.new(root, {});
-
-      var circle = container.children.push(
-        am5.Circle.new(
-          root,
-          {
-            radius: 20,
-            fillOpacity: 0.7,
-            fill: am5.color(0xff0000),
-            cursorOverStyle: "pointer",
-            tooltipText: `{name}: [bold]{value}[/]`,
-          },
-          circleTemplate,
-        ),
-      );
-
-      var countryLabel = container.children.push(
-        am5.Label.new(root, {
-          text: "{name}",
-          paddingLeft: 5,
-          populateText: true,
-          fontWeight: "bold",
-          fontSize: 13,
-          centerY: am5.p50,
-        }),
-      );
-
-      circle.on("radius", function (radius) {
-        countryLabel.set("x", radius);
-      });
-
-      return am5.Bullet.new(root, {
-        sprite: container,
-        dynamic: true,
-      });
-    });
-
-    bubbleSeries.bullets.push(function (root, series, dataItem) {
-      return am5.Bullet.new(root, {
-        sprite: am5.Label.new(root, {
-          text: "{value}",
-          fill: am5.color(0xffffff),
-          populateText: true,
-          centerX: am5.p50,
-          centerY: am5.p50,
-          textAlign: "center",
-        }),
-        dynamic: true,
-      });
-    });
-
-    bubbleSeries.set("heatRules", [
-      {
-        target: circleTemplate,
-        dataField: "value",
-        min: 35,
-        max: 35,
-        minValue: 35,
-        maxValue: 35,
-        key: "radius",
-      },
-    ]);
-
-    bubbleSeries.data.setAll(data);
-
-    let exporting = am5plugins_exporting.Exporting.new(this.root, {
-      filePrefix: "my_chart",
-      dataSource: chart.series.getIndex(0),
-    });
-
-    this.root.events.once("frameended", () => {
-      if (this.props.export) {
-        this.props.export(exporting);
-      }
-    });
-
-    updateData();
-
-    function updateData() {
-      for (var i = 0; i < bubbleSeries.dataItems.length; i++) {
-        bubbleSeries.data.setIndex(i, {
-          value: data[i].value,
-          id: data[i].id,
-          name: data[i].name,
+    this.chartInstance.on("click", (params) => {
+      if (this.props.update_chart && params.data) {
+        this.props.update_chart(parseInt(this.props.chartId), "map_chart", {
+          category: params.data.name,
+          record_id: params.data.record_id,
         });
       }
+    });
+
+    if (this.props.export) {
+      this.props.export({
+        export: async (type = "png") => {
+          return this.chartInstance.getDataURL({
+            type: "png",
+            pixelRatio: 2,
+            backgroundColor: "#fff",
+          });
+        },
+      });
+    }
+
+    if (!this.resizeHandler) {
+      this.resizeHandler = () => {
+        if (this.chartInstance) {
+          this.chartInstance.resize();
+        }
+      };
+      window.addEventListener("resize", this.resizeHandler);
     }
   }
 }
+
