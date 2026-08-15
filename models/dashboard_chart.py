@@ -2739,7 +2739,7 @@ class DashboardChart(models.Model):
                 records = records.filtered(
                     lambda nonz: getattr(nonz, conf_obj.sub_group_by)
                 )
-        if conf_obj.limit_record > 0:
+        if conf_obj.limit_record > 0 and conf_obj.sort_field:
             records = records[: conf_obj.limit_record]
 
         for record in records:
@@ -2844,6 +2844,27 @@ class DashboardChart(models.Model):
 
         if not result:
             return {"type": "error", "message": "No Data to display!"}
+
+        is_timeline = False
+        if conf_obj.group_by and conf_obj.group_by in record_obj._fields:
+            field_type = record_obj._fields[conf_obj.group_by].type
+            if field_type in ["date", "datetime"] or conf_obj.time_range:
+                is_timeline = True
+
+        if not is_timeline:
+            def get_row_total(row):
+                return sum(
+                    v
+                    for k, v in row.items()
+                    if k not in ("category", "record_id", "isSubGroupBy")
+                    and isinstance(v, (int, float))
+                )
+
+            reverse_sort = conf_obj.sort_order != "asc"
+            result.sort(key=get_row_total, reverse=reverse_sort)
+
+        if conf_obj.limit_record > 0:
+            result = result[: conf_obj.limit_record]
 
         value_keys = set()
         for row in result:
