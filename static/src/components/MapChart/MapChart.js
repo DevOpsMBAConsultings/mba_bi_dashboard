@@ -2,6 +2,7 @@
 
 import { Component, onMounted, onWillUnmount, useEffect, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { mapThemePalettes } from "../../js/theme_palettes";
 
 export class MapChart extends Component {
   static template = "mba_bi_dashboard.MapChart";
@@ -23,14 +24,7 @@ export class MapChart extends Component {
     this.resizeObserver = null;
     this.state = useState({ isError: false, errorMessage: false });
 
-    this.themePalettes = {
-      animated: ["#e0f3f8", "#71639e", "#2c3e50"],
-      frozen: ["#e0f7fa", "#007bff", "#1c3b70"],
-      kelly: ["#e8f5e9", "#28a745", "#1b5e20"],
-      material: ["#e3f2fd", "#2196f3", "#0d47a1"],
-      moonrise: ["#eceff1", "#607d8b", "#263238"],
-      spirited: ["#fff3e0", "#e67e22", "#b71c1c"],
-    };
+    this.themePalettes = mapThemePalettes;
 
     useEffect(
       () => {
