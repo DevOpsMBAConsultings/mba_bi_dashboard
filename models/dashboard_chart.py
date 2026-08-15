@@ -319,9 +319,9 @@ class DashboardChart(models.Model):
     )
     domain = fields.Char(string="Domain", default="[]")
     sort_order = fields.Selection(
-        [("asc", "Ascending"), ("desc", "Descending")],
+        [("desc", "Descending (Mayor a Menor)"), ("asc", "Ascending (Menor a Mayor)")],
         string="Sort Order",
-        default="asc",
+        default="desc",
         tracking=True,
     )
     data_type = fields.Selection(
