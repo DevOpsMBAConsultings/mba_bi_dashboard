@@ -1771,10 +1771,11 @@ class DashboardChart(models.Model):
         """
         if not conf_obj.model:
             return {"type": "error", "message": "Please Select model!"}
-        if not conf_obj.measurement_field_id and conf_obj.data_type in [
-            "sum",
-            "average",
-        ]:
+        if (
+            not conf_obj.measurement_field_id
+            and conf_obj.data_type in ["sum", "average"]
+            and conf_obj.model not in ["stock.quant", "purchase.order.line"]
+        ):
             return {"type": "error", "message": "Please Select measurement!"}
         record_obj = self.env[conf_obj.model]
         message = ""
