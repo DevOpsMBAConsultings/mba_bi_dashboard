@@ -18,7 +18,7 @@ export class TileLayoutOne extends Component {
       () => {
         this.state.data = this.props.data;
         if (this.state.data && this.state.data.default_icon) {
-          this.state.kpi_icon = markup(this.state.data.default_icon);
+          this.state.kpi_icon = markup(`<i class="fa fa-${this.state.data.default_icon} fa-2x"></i>`);
         }
       },
       () => [this.props.data],

@@ -19,7 +19,7 @@
                         </div>
                         <div t-if="state.data.icon or state.data.default_icon" class="p-0 pr-2 col-md-4 p-0 col-md-4 d-flex align-items-center justify-content-center" t-attf-style="font-size: 2vw;color: #{state.data.font_color}">
                             <img  t-if="state.data.icon_option == 'custom' and state.data.icon" class="img" style="height: 45px;width: 45px;" t-attf-src="data:images/png;base64,#{state.data.icon}"/>
-                            <t t-att-style="'color:' + state.data.font_color+';'" t-elif="state.data.icon_option == 'default' and state.data.default_icon" t-raw="state.kpi_icon"/>
+                            <t t-att-style="'color:' + state.data.font_color+';'" t-elif="state.data.icon_option == 'default' and state.data.default_icon" t-out="state.kpi_icon"/>
                             <i t-else="" t-att-style="'color:' + state.data.font_color+';'" class="fa fa-user"/>
                         </div>
                     </div>

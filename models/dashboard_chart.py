@@ -1856,18 +1856,59 @@ class DashboardChart(models.Model):
         if conf_obj.is_apply_multiplier and conf_obj.chart_multiplier_ids:
             if conf_obj.data_type in ["count", "sum", "average"]:
                 count *= conf_obj.chart_multiplier_ids[0].get("multiplier")
-        count_with_symbol = round(count, 2)
-        if conf_obj.show_unit:
-            if conf_obj.unit_type == "monetary":
-                company = self.env["res.company"].browse(conf_obj.company)
-                count_with_symbol = format_amount(
-                    record_obj.env, count_with_symbol, company.currency_id
-                )
+        # Determine if value should be formatted as currency
+        is_monetary = False
+        company = (
+            self.env["res.company"].browse(conf_obj.company)
+            if conf_obj.company
+            else self.env.company
+        )
+        if (
+            conf_obj.measurement_field_id
+            and conf_obj.measurement_field_id.ttype == "monetary"
+        ) or (conf_obj.show_unit and conf_obj.unit_type == "monetary"):
+            is_monetary = True
+        elif conf_obj.model and conf_obj.data_type in ["sum", "average"]:
+            fname = (
+                conf_obj.measurement_field_id.name
+                if conf_obj.measurement_field_id
+                else ""
+            )
+            if any(
+                term in fname.lower()
+                for term in [
+                    "amount",
+                    "price",
+                    "total",
+                    "tax",
+                    "residual",
+                    "subtotal",
+                    "balance",
+                    "cost",
+                ]
+            ):
+                is_monetary = True
+
+        if is_monetary:
+            currency = company.currency_id or self.env.company.currency_id
+            count_with_symbol = format_amount(record_obj.env, count, currency)
+        elif conf_obj.show_unit and conf_obj.unit_type == "custom":
+            count_formatted = (
+                f"{count:,.2f}"
+                if isinstance(count, float) and count % 1 != 0
+                else f"{count:,.0f}"
+            )
+            count_with_symbol = (
+                f"{conf_obj.custom_unit or ''} {count_formatted}".strip()
+            )
+        else:
+            if isinstance(count, (int, float)):
+                if count % 1 == 0:
+                    count_with_symbol = f"{int(count):,}"
+                else:
+                    count_with_symbol = f"{count:,.2f}"
             else:
-                count_with_symbol = "%s %s" % (
-                    conf_obj.custom_unit or "",
-                    count_with_symbol,
-                )
+                count_with_symbol = str(count)
         return {
             "name": conf_obj.name,
             "background_color": conf_obj.background_color,
@@ -2100,10 +2141,17 @@ class DashboardChart(models.Model):
                 symbol = "%s" % company.currency_id.symbol
             else:
                 symbol = "%s" % (conf_obj.custom_unit or "")
+        def _fmt_val(val):
+            if is_monetary:
+                return format_amount(record_obj.env, val, currency)
+            if isinstance(val, (int, float)):
+                return f"{val:,.2f}" if val % 1 != 0 else f"{int(val):,}"
+            return str(val)
+
         kcmp_type = conf_obj.kpi_comparison_type
         if kcmp_type == "sum":
             compute_count = count + count2
-            prepared_data["count"] = "%s %s" % (symbol, round(compute_count, 2))
+            prepared_data["count"] = _fmt_val(compute_count)
         elif kcmp_type == "percentage" and count2:
             compute_count = int((count / count2) * 100) if count2 else 0
             prepared_data["count"] = round(compute_count, 2)
@@ -2111,12 +2159,12 @@ class DashboardChart(models.Model):
             compute_count, count2 = calc_ratio(count, count2)
             prepared_data.update(
                 {
-                    "count": "%s %s" % (symbol, round(compute_count, 2)),
-                    "count2": "%s %s" % (symbol, count2),
+                    "count": _fmt_val(compute_count),
+                    "count2": _fmt_val(count2),
                 }
             )
         else:
-            prepared_data["count2"] = round(count2, 2)
+            prepared_data["count2"] = _fmt_val(count2)
 
         if conf_obj.kpi_enable_target and kcmp_type in ("sum", "percentage"):
             target_value = conf_obj.kpi_target_value
