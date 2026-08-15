@@ -85,6 +85,23 @@
         <field name="default_icon">list-alt</field>
     </record>
 
+    <!-- KPI 5: Facturas Pendientes / Error PAC (Alerta de Falla Silenciosa) -->
+    <record id="kpi_facturas_pendientes_pac" model="dashboard.chart">
+        <field name="name">Facturas Pendientes / Error PAC (Mes)</field>
+        <field name="dashboard_id" ref="dashboard_panama_financiero"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="data_type">count</field>
+        <field name="domain">[('move_type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'posted'), ('l10n_pa_pac_status', 'in', ('draft', 'sent', 'error'))]</field>
+        <field name="date_filter_field_id" ref="account.field_account_move__invoice_date"/>
+        <field name="date_filter_option">this_month</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#dc3545</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">exclamation-triangle</field>
+    </record>
+
     <!-- Gráfico 1: Evolución Diaria de Facturación -->
     <record id="chart_facturacion_diaria" model="dashboard.chart">
         <field name="name">Evolución Diaria de Facturación</field>
