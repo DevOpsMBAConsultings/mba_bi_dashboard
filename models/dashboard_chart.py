@@ -1362,7 +1362,8 @@ class DashboardChart(models.Model):
         Configure global cong variable
         """
         conf = SimpleNamespace(
-            model=self.model_id.model,
+            model=self.model_id.model or self.kpi_model_id.model,
+            chart_type=self.chart_type,
             name=self.name,
             hide_false_value=self.hide_false_value,
             show_unit=self.show_unit,
@@ -1840,7 +1841,8 @@ class DashboardChart(models.Model):
                 lambda arft: not getattr(arft, conf_obj.sort_field)
             )
             all_records = sorted_record
-        if conf_obj.chart_type not in ["kpi", "tile"] and conf_obj.limit_record > 0:
+        chart_type = getattr(conf_obj, "chart_type", self.chart_type)
+        if chart_type not in ["kpi", "tile"] and conf_obj.limit_record > 0:
             all_records = all_records[: conf_obj.limit_record]
 
         count = 0
