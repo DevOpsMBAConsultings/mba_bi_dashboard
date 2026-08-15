@@ -89,6 +89,9 @@ export class StackedColumnChart extends Component {
     );
 
     const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
+    const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const formatLabel = (text, maxLength = 15) => {
       if (!text || typeof text !== "string") return text;
@@ -96,7 +99,7 @@ export class StackedColumnChart extends Component {
     };
 
     const series = valueKeys.map((key, idx) => ({
-      name: key.replace(/^ - /, ""),
+      name: key,
       type: "bar",
       stack: "total",
       barMaxWidth: 35,
@@ -113,7 +116,7 @@ export class StackedColumnChart extends Component {
         position: "inside",
         formatter: (params) => {
           const val = params.value;
-          return val && val > 0 ? Number(val).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : "";
+          return val !== null && val !== undefined && val !== 0 ? val : "";
         },
         color: "#ffffff",
         fontWeight: "bold",
@@ -137,11 +140,10 @@ export class StackedColumnChart extends Component {
           params.forEach((item) => {
             const val = Number(item.value) || 0;
             total += val;
-            const valStr = val.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            res += `${item.marker} ${item.seriesName}: <strong>${valStr}</strong><br/>`;
+            res += `${item.marker} ${item.seriesName}: <strong>${item.value}</strong><br/>`;
           });
           if (params.length > 1) {
-            res += `<hr style="margin:4px 0; border-top:1px solid #ccc;"/>Total: <strong>${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>`;
+            res += `<hr style="margin:4px 0; border-top:1px solid #ccc;"/>Total: <strong>${total}</strong>`;
           }
           return res;
         },
@@ -150,6 +152,7 @@ export class StackedColumnChart extends Component {
         show: valueKeys.length > 1,
         bottom: 0,
         type: "scroll",
+        textStyle: { color: textMuted },
       },
       grid: {
         left: "5%",
@@ -165,7 +168,7 @@ export class StackedColumnChart extends Component {
           interval: 0,
           rotate: isMobileOS() ? -35 : (categories.length > 6 ? -25 : 0),
           formatter: (value) => formatLabel(value, isMobileOS() ? 10 : 16),
-          color: "#495057",
+          color: textMuted,
           fontSize: 11,
         },
       },
@@ -173,6 +176,7 @@ export class StackedColumnChart extends Component {
         type: "value",
         splitLine: { lineStyle: { type: "dashed", opacity: 0.3 } },
         axisLabel: {
+          color: textMuted,
           formatter: (val) => val >= 1000 ? (val / 1000).toFixed(0) + "k" : val,
         },
       },

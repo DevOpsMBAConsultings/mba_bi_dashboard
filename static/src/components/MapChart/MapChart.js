@@ -94,6 +94,9 @@ export class MapChart extends Component {
     if (maxVal === 0) maxVal = 100;
 
     const mapColors = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
+    const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const chartData = data.map((d) => ({
       name: d.name || d.category,
@@ -109,8 +112,7 @@ export class MapChart extends Component {
           if (isNaN(params.value)) {
             return `<strong>${params.name}</strong><br/>Sin datos`;
           }
-          const val = Number(params.value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-          return `<strong>${params.name}</strong><br/>Valor: <strong>${val}</strong>`;
+          return `<strong>${params.name}</strong><br/>Valor: <strong>${params.value}</strong>`;
         },
       },
       visualMap: {
@@ -126,7 +128,7 @@ export class MapChart extends Component {
         left: 10,
         textStyle: {
           fontSize: 10,
-          color: "#495057",
+          color: textMuted,
         },
       },
       series: [

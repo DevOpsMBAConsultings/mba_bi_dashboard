@@ -83,6 +83,9 @@ export class DoughnutChart extends Component {
     this.chartInstance = echarts.init(container);
 
     const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
+    const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const chartData = data.map((item) => {
       let val = item.value;
@@ -105,13 +108,13 @@ export class DoughnutChart extends Component {
       tooltip: {
         trigger: "item",
         formatter: (params) => {
-          const val = Number(params.value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-          return `<strong>${params.name}</strong><br/>${params.marker} Valor: <strong>${val}</strong> (${params.percent}%)`;
+          return `<strong>${params.name}</strong><br/>${params.marker} Valor: <strong>${params.value}</strong> (${params.percent}%)`;
         },
       },
       legend: {
         bottom: 0,
         type: "scroll",
+        textStyle: { color: textMuted },
       },
       series: [
         {
@@ -134,6 +137,7 @@ export class DoughnutChart extends Component {
               show: true,
               fontSize: 13,
               fontWeight: "bold",
+              color: textDark,
               formatter: "{b}\n{d}%",
             },
           },

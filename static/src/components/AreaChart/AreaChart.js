@@ -89,9 +89,12 @@ export class AreaChart extends Component {
     );
 
     const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
+    const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const series = valueKeys.map((key, idx) => ({
-      name: key.replace(/^ - /, ""),
+      name: key,
       type: "bar",
       coordinateSystem: "polar",
       data: data.map((d) => ({
@@ -113,14 +116,14 @@ export class AreaChart extends Component {
       tooltip: {
         trigger: "item",
         formatter: (params) => {
-          const val = Number(params.value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-          return `<strong>${params.data.category}</strong><br/>${params.marker} ${params.seriesName}: <strong>${val}</strong>`;
+          return `<strong>${params.data.category}</strong><br/>${params.marker} ${params.seriesName}: <strong>${params.value}</strong>`;
         },
       },
       legend: {
         show: valueKeys.length > 1,
         bottom: 0,
         type: "scroll",
+        textStyle: { color: textMuted },
       },
       polar: {
         radius: [20, "70%"],
@@ -131,12 +134,13 @@ export class AreaChart extends Component {
         startAngle: 75,
         axisLabel: {
           fontSize: 10,
-          color: "#495057",
+          color: textMuted,
         },
       },
       radiusAxis: {
         min: 0,
         splitLine: { lineStyle: { type: "dashed", opacity: 0.3 } },
+        axisLabel: { color: textMuted },
       },
       series: series,
     };

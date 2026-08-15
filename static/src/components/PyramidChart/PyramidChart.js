@@ -83,6 +83,9 @@ export class PyramidChart extends Component {
     this.chartInstance = echarts.init(container);
 
     const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
+    const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const chartData = data.map((item) => {
       let val = item.value;
@@ -105,13 +108,13 @@ export class PyramidChart extends Component {
       tooltip: {
         trigger: "item",
         formatter: (params) => {
-          const val = Number(params.value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-          return `<strong>${params.name}</strong><br/>${params.marker} Nivel: <strong>${val}</strong> (${params.percent}%)`;
+          return `<strong>${params.name}</strong><br/>${params.marker} Nivel: <strong>${params.value}</strong> (${params.percent}%)`;
         },
       },
       legend: {
         bottom: 0,
         type: "scroll",
+        textStyle: { color: textMuted },
       },
       series: [
         {
@@ -130,8 +133,7 @@ export class PyramidChart extends Component {
             show: true,
             position: "inside",
             formatter: (params) => {
-              const val = Number(params.value).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-              return `${params.name}: ${val}`;
+              return `${params.name}: ${params.value}`;
             },
             color: "#ffffff",
             fontWeight: "bold",

@@ -88,6 +88,9 @@ export class RadarChart extends Component {
     );
 
     const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
+    const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     let maxVal = 0;
     data.forEach((d) => {
@@ -104,7 +107,7 @@ export class RadarChart extends Component {
     }));
 
     const seriesData = valueKeys.map((key, idx) => ({
-      name: key.replace(/^ - /, ""),
+      name: key,
       value: data.map((d) => d[key] || 0),
       itemStyle: { color: palette[idx % palette.length] },
       lineStyle: { width: 2, color: palette[idx % palette.length] },
@@ -121,6 +124,7 @@ export class RadarChart extends Component {
         show: valueKeys.length > 1,
         bottom: 0,
         type: "scroll",
+        textStyle: { color: textMuted },
       },
       radar: {
         indicator: indicators,
@@ -128,7 +132,7 @@ export class RadarChart extends Component {
         center: ["50%", "48%"],
         splitNumber: 4,
         axisName: {
-          color: "#495057",
+          color: textMuted,
           fontSize: 11,
         },
         splitLine: {

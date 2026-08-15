@@ -94,6 +94,9 @@ export class BarChart extends Component {
     );
 
     const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
+    const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const formatLabel = (text, maxLength = 18) => {
       if (!text || typeof text !== "string") return text;
@@ -101,7 +104,7 @@ export class BarChart extends Component {
     };
 
     const series = valueKeys.map((key, idx) => ({
-      name: key.replace(/^ - /, ""),
+      name: key,
       type: "bar",
       barMaxWidth: 30,
       itemStyle: {
@@ -118,9 +121,9 @@ export class BarChart extends Component {
         position: "insideLeft",
         formatter: (params) => {
           const val = params.value;
-          return val ? Number(val).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "";
+          return val !== null && val !== undefined ? val : "";
         },
-        color: "#212529",
+        color: textDark,
         fontWeight: "bold",
         fontSize: 11,
       },
@@ -139,8 +142,7 @@ export class BarChart extends Component {
           if (!params || !params.length) return "";
           let res = `<strong>${params[0].name}</strong><br/>`;
           params.forEach((item) => {
-            const val = Number(item.value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            res += `${item.marker} ${item.seriesName}: <strong>${val} B/.</strong><br/>`;
+            res += `${item.marker} ${item.seriesName}: <strong>${item.value}</strong><br/>`;
           });
           return res;
         },
@@ -149,6 +151,7 @@ export class BarChart extends Component {
         show: valueKeys.length > 1,
         bottom: 0,
         type: "scroll",
+        textStyle: { color: textMuted },
       },
       grid: {
         left: isMobileOS() ? "28%" : "22%",
@@ -161,6 +164,7 @@ export class BarChart extends Component {
         type: "value",
         splitLine: { lineStyle: { type: "dashed", opacity: 0.3 } },
         axisLabel: {
+          color: textMuted,
           formatter: (val) => {
             return val >= 1000 ? (val / 1000).toFixed(0) + "k" : val;
           },
@@ -173,7 +177,7 @@ export class BarChart extends Component {
         axisLabel: {
           interval: 0,
           formatter: (value) => formatLabel(value, isMobileOS() ? 12 : 20),
-          color: "#495057",
+          color: textMuted,
           fontSize: 11,
         },
       },

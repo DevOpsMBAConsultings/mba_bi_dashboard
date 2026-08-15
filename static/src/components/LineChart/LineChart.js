@@ -89,6 +89,9 @@ export class LineChart extends Component {
     );
 
     const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
+    const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const formatLabel = (text, maxLength = 15) => {
       if (!text || typeof text !== "string") return text;
@@ -96,7 +99,7 @@ export class LineChart extends Component {
     };
 
     const series = valueKeys.map((key, idx) => ({
-      name: key.replace(/^ - /, ""),
+      name: key,
       type: "line",
       smooth: true,
       symbol: "circle",
@@ -128,8 +131,7 @@ export class LineChart extends Component {
           if (!params || !params.length) return "";
           let res = `<strong>${params[0].name}</strong><br/>`;
           params.forEach((item) => {
-            const val = Number(item.value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            res += `${item.marker} ${item.seriesName}: <strong>${val}</strong><br/>`;
+            res += `${item.marker} ${item.seriesName}: <strong>${item.value}</strong><br/>`;
           });
           return res;
         },
@@ -138,6 +140,7 @@ export class LineChart extends Component {
         show: valueKeys.length > 1,
         bottom: 0,
         type: "scroll",
+        textStyle: { color: textMuted },
       },
       grid: {
         left: "5%",
@@ -154,7 +157,7 @@ export class LineChart extends Component {
           interval: 0,
           rotate: isMobileOS() ? -35 : (categories.length > 6 ? -25 : 0),
           formatter: (value) => formatLabel(value, isMobileOS() ? 10 : 16),
-          color: "#495057",
+          color: textMuted,
           fontSize: 11,
         },
       },
@@ -162,6 +165,7 @@ export class LineChart extends Component {
         type: "value",
         splitLine: { lineStyle: { type: "dashed", opacity: 0.3 } },
         axisLabel: {
+          color: textMuted,
           formatter: (val) => val >= 1000 ? (val / 1000).toFixed(0) + "k" : val,
         },
       },

@@ -76,6 +76,10 @@ export class MeterChart extends Component {
     const targetVal = Number(data.target) || 100;
     const currentVal = Number(data.current_value) || 0;
 
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
+    const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
+
     const option = {
       animationDuration: 1000,
       series: [
@@ -111,7 +115,7 @@ export class MeterChart extends Component {
             length: "60%",
             width: 5,
             itemStyle: {
-              color: "#495057",
+              color: textMuted,
             },
           },
           axisTick: {
@@ -126,7 +130,7 @@ export class MeterChart extends Component {
           },
           axisLabel: {
             distance: -16,
-            color: "#6c757d",
+            color: textMuted,
             fontSize: 10,
             formatter: (val) => val >= 1000 ? (val / 1000).toFixed(0) + "k" : val,
           },
@@ -134,20 +138,20 @@ export class MeterChart extends Component {
             show: true,
             offsetCenter: [0, "25%"],
             fontSize: 12,
-            color: "#6c757d",
+            color: textMuted,
           },
           detail: {
             valueAnimation: true,
-            formatter: (val) => Number(val).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 }),
+            formatter: (val) => val,
             fontSize: 22,
             fontWeight: "bold",
             offsetCenter: [0, "-15%"],
-            color: "#212529",
+            color: textDark,
           },
           data: [
             {
               value: currentVal,
-              name: `Meta: ${targetVal.toLocaleString("en-US")}`,
+              name: `Meta: ${targetVal}`,
             },
           ],
         },
