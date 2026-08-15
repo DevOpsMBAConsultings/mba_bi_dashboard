@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, onMounted, useEffect, useState } from "@odoo/owl";
+import { Component, onMounted, onWillUnmount, useEffect, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
 export class PieChart extends Component {
@@ -18,93 +18,154 @@ export class PieChart extends Component {
 
   setup() {
     this.orm = useService("orm");
-    this.root = null;
-    this.themeMap = {
-      animated: am5themes_Animated,
-      frozen: am5themes_Frozen,
-      kelly: am5themes_Kelly,
-      material: am5themes_Material,
-      moonrise: am5themes_Moonrise,
-      spirited: am5themes_Spirited,
-    };
+    this.chartInstance = null;
+    this.resizeHandler = null;
     this.state = useState({ isError: false, errorMessage: false });
+
+    this.themePalettes = {
+      animated: ["#71639e", "#17a2b8", "#28a745", "#ffac00", "#e06d53", "#6f42c1", "#20c997", "#007bff"],
+      frozen: ["#007bff", "#17a2b8", "#6f42c1", "#5bc0de", "#337ab7", "#4b9cd3", "#2a6496", "#1c3b70"],
+      kelly: ["#28a745", "#ffac00", "#e06d53", "#71639e", "#17a2b8", "#6f42c1", "#d9534f", "#f0ad4e"],
+      material: ["#2196f3", "#4caf50", "#ff9800", "#e91e63", "#9c27b0", "#00bcd4", "#ff5722", "#607d8b"],
+      moonrise: ["#2c3e50", "#34495e", "#7f8c8d", "#95a5a6", "#bdc3c7", "#16a085", "#27ae60", "#2980b9"],
+      spirited: ["#e74c3c", "#e67e22", "#f1c40f", "#2ecc71", "#1abc9c", "#3498db", "#9b59b6", "#34495e"],
+    };
+
     useEffect(
       () => {
         this.render_pie_chart();
       },
-      () => [this.props.chartId, this.props.recordSets, this.props.data],
+      () => [this.props.chartId, this.props.recordSets, this.props.data, this.props.theme]
     );
+
     onMounted(() => {
       this.render_pie_chart();
     });
+
+    onWillUnmount(() => {
+      if (this.resizeHandler) {
+        window.removeEventListener("resize", this.resizeHandler);
+        this.resizeHandler = null;
+      }
+      if (this.chartInstance) {
+        this.chartInstance.dispose();
+        this.chartInstance = null;
+      }
+    });
   }
 
-  async render_pie_chart() {
+  render_pie_chart() {
     let data = this.props.recordSets;
-    if (this.root) {
-      this.root.dispose();
+    const container = document.getElementById("pie_chart__" + this.props.chartId);
+
+    if (this.chartInstance) {
+      this.chartInstance.dispose();
+      this.chartInstance = null;
     }
-    if (typeof data == "object" && !Array.isArray(data)) {
+
+    if (!container) return;
+
+    if (typeof data === "object" && !Array.isArray(data)) {
       this.state.isError = true;
-      this.state.errorMessage = data.message;
+      this.state.errorMessage = data.message || "Error al cargar datos";
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      this.state.isError = true;
+      this.state.errorMessage = "No Data to display!";
       return;
     }
 
     this.state.isError = false;
     this.state.errorMessage = false;
-    this.root = am5.Root.new("pie_chart__" + this.props.chartId);
-    const theme = this.themeMap[this.props.theme];
-    this.root.setThemes([theme.new(this.root)]);
-    const formatLabel = (text, maxLength = 15) => {
-      if (!text) return text;
-      if (typeof text !== "string") return text;
-      if (text.length <= maxLength) return text;
-      return text.substring(0, maxLength - 3) + "...";
+
+    this.chartInstance = echarts.init(container);
+
+    const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
+
+    const chartData = data.map((item) => {
+      let val = item.value;
+      if (val === undefined) {
+        const valKey = Object.keys(item).find(
+          (k) => !["category", "record_id", "isSubGroupBy"].includes(k)
+        );
+        val = valKey ? item[valKey] : 0;
+      }
+      return {
+        name: item.category,
+        value: val || 0,
+        record_id: item.record_id,
+      };
+    });
+
+    const option = {
+      color: palette,
+      animationDuration: 800,
+      tooltip: {
+        trigger: "item",
+        formatter: (params) => {
+          const val = Number(params.value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          return `<strong>${params.name}</strong><br/>${params.marker} Valor: <strong>${val}</strong> (${params.percent}%)`;
+        },
+      },
+      legend: {
+        bottom: 0,
+        type: "scroll",
+      },
+      series: [
+        {
+          name: this.props.name || "Pie Chart",
+          type: "pie",
+          radius: "62%",
+          center: ["50%", "45%"],
+          data: chartData,
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 10,
+              shadowOffsetX: 0,
+              shadowColor: "rgba(0, 0, 0, 0.5)",
+            },
+          },
+          label: {
+            formatter: "{b}: {d}%",
+            fontSize: 11,
+          },
+        },
+      ],
     };
 
-    // Apply formatting to your data
-    data = data.map((item) => ({
-      ...item,
-      category: formatLabel(item.category), // Assuming 'category' is your label field
-    }));
-    var chart = this.root.container.children.push(
-      am5percent.PieChart.new(this.root, {
-        endAngle: 270,
-      }),
-    );
+    this.chartInstance.setOption(option);
 
-    var series = chart.series.push(
-      am5percent.PieSeries.new(this.root, {
-        valueField: "value",
-        categoryField: "category",
-        endAngle: 270,
-      }),
-    );
-    var self = this;
-    series.slices.template.events.on("click", function (ev) {
-      if (self.props.update_chart) {
-        self.props.update_chart(
-          parseInt(self.props.chartId),
-          "column_chart",
-          ev.target.dataItem.dataContext,
-        );
+    this.chartInstance.on("click", (params) => {
+      if (this.props.update_chart && params.data) {
+        this.props.update_chart(parseInt(this.props.chartId), "pie_chart", {
+          category: params.data.name,
+          record_id: params.data.record_id,
+        });
       }
     });
 
-    series.states.create("hidden", {
-      endAngle: -90,
-    });
+    if (this.props.export) {
+      this.props.export({
+        export: async (type = "png") => {
+          return this.chartInstance.getDataURL({
+            type: "png",
+            pixelRatio: 2,
+            backgroundColor: "#fff",
+          });
+        },
+      });
+    }
 
-    series.data.setAll(data);
-    series.appear(1000, 100);
-    let exporting = am5plugins_exporting.Exporting.new(this.root, {
-      filePrefix: "my_chart",
-      dataSource: chart.series.getIndex(0), // optional
-    });
-    this.root.events.once("frameended", () => {
-      if (this.props.export) {
-        this.props.export(exporting);
-      }
-    });
+    if (!this.resizeHandler) {
+      this.resizeHandler = () => {
+        if (this.chartInstance) {
+          this.chartInstance.resize();
+        }
+      };
+      window.addEventListener("resize", this.resizeHandler);
+    }
   }
 }
+
