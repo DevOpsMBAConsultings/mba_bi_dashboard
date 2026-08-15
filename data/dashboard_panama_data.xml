@@ -416,6 +416,23 @@
         <field name="default_icon">user-times</field>
     </record>
 
+    <!-- KPI 5: Ciclo de Cierre Promedio (Días de Cotización a Venta) -->
+    <record id="kpi_ciclo_cierre" model="dashboard.chart">
+        <field name="name">Ciclo de Cierre Promedio (Días)</field>
+        <field name="dashboard_id" ref="dashboard_panama_ventas"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="data_type">average</field>
+        <field name="domain">[('state', 'in', ('sale', 'done'))]</field>
+        <field name="date_filter_field_id" ref="sale.field_sale_order__date_order"/>
+        <field name="date_filter_option">this_month</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#6f42c1</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">clock-o</field>
+    </record>
+
     <!-- Gráfico 1: Ventas por Asesor Comercial -->
     <record id="chart_ventas_vendedor" model="dashboard.chart">
         <field name="name">Rendimiento por Asesor Comercial</field>

@@ -1852,15 +1852,41 @@ class DashboardChart(models.Model):
         if conf_obj.model == "res.partner" and any(
             kw in (conf_obj.name or "").lower() for kw in ["inactivo", "inactivos", "dormido", "dormidos"]
         ):
+            ACTIVE_CUSTOMER_WINDOW_DAYS = 365
+            date_base = datetime.now() - timedelta(days=ACTIVE_CUSTOMER_WINDOW_DAYS)
             date_30d = datetime.now() - timedelta(days=30)
-            all_recent_so = self.env["sale.order"].search([("date_order", ">=", date_30d)])
-            active_customer_ids = set(all_recent_so.mapped("partner_id.id"))
-            total_customers = all_records.filtered(lambda c: c.customer_rank > 0)
-            inactive_customers = total_customers.filtered(lambda c: c.id not in active_customer_ids)
+
+            base_orders = self.env["sale.order"].search([
+                ("date_order", ">=", date_base),
+                ("state", "in", ("sale", "done")),
+            ])
+            base_customer_ids = set(base_orders.mapped("partner_id.id"))
+            active_30d_orders = base_orders.filtered(lambda o: o.date_order and o.date_order >= date_30d)
+            active_30d_customer_ids = set(active_30d_orders.mapped("partner_id.id"))
+
+            total_customers = all_records.filtered(lambda c: c.id in base_customer_ids)
+            inactive_customers = total_customers.filtered(lambda c: c.id not in active_30d_customer_ids)
             count = len(inactive_customers)
             total_count = len(total_customers) or 1
             pct = (count / total_count) * 100
             custom_display_count = f"{count} / {total_count} ({pct:.0f}%)"
+        elif conf_obj.model == "sale.order" and any(
+            kw in (conf_obj.name or "").lower() for kw in ["ciclo de cierre", "tiempo de cierre", "dias de cierre", "días de cierre"]
+        ):
+            confirmed_orders = all_records.filtered(
+                lambda so: so.state in ("sale", "done") and so.create_date and so.date_order
+            )
+            if confirmed_orders:
+                diffs = [
+                    max(0.0, (so.date_order - so.create_date).total_seconds() / 86400.0)
+                    for so in confirmed_orders
+                ]
+                avg_days = sum(diffs) / len(diffs)
+                count = round(avg_days, 1)
+                custom_display_count = f"{count:.1f} días"
+            else:
+                count = 0.0
+                custom_display_count = "0.0 días"
         elif conf_obj.model == "stock.quant":
             is_monetary = True
             if "proyectado" in (conf_obj.name or "").lower():
