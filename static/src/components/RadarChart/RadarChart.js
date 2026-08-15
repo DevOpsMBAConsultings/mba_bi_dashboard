@@ -98,6 +98,7 @@ export class RadarChart extends Component {
     const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const clean = (n) => Math.round(Number(n) * 100) / 100;
+    const formatNumber = (n) => clean(n).toLocaleString("es-PA", { maximumFractionDigits: 2 });
 
     let maxVal = 0;
     data.forEach((d) => {
@@ -126,6 +127,17 @@ export class RadarChart extends Component {
       animationDuration: 800,
       tooltip: {
         trigger: "item",
+        formatter: (params) => {
+          if (!params || !params.value) return "";
+          let res = `<strong>${params.name}</strong><br/>`;
+          indicators.forEach((ind, i) => {
+            const val = params.value[i];
+            if (val !== undefined) {
+              res += `${ind.name}: <strong>${formatNumber(val)}</strong><br/>`;
+            }
+          });
+          return res;
+        },
       },
       legend: {
         show: valueKeys.length > 1,

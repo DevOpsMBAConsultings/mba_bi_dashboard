@@ -99,6 +99,7 @@ export class ScatterChart extends Component {
     const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const clean = (n) => Math.round(Number(n) * 100) / 100;
+    const formatNumber = (n) => clean(n).toLocaleString("es-PA", { maximumFractionDigits: 2 });
     const formatLabel = (text, maxLength = 15) => {
       if (!text || typeof text !== "string") return text;
       return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
@@ -134,7 +135,7 @@ export class ScatterChart extends Component {
       tooltip: {
         trigger: "item",
         formatter: (params) => {
-          return `<strong>${params.value[0]}</strong><br/>${params.marker} ${params.seriesName}: <strong>${params.value[1]}</strong>`;
+          return `<strong>${params.value[0]}</strong><br/>${params.marker} ${params.seriesName}: <strong>${formatNumber(params.value[1])}</strong>`;
         },
       },
       legend: {

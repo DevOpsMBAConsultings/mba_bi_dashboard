@@ -79,6 +79,7 @@ export class MeterChart extends Component {
     this.chartInstance = echarts.init(container);
 
     const clean = (n) => Math.round(Number(n) * 100) / 100;
+    const formatNumber = (n) => clean(n).toLocaleString("es-PA", { maximumFractionDigits: 2 });
     const targetVal = clean(Number(data.target) || 100);
     const currentVal = clean(Number(data.current_value) || 0);
 
@@ -148,7 +149,7 @@ export class MeterChart extends Component {
           },
           detail: {
             valueAnimation: true,
-            formatter: (val) => val,
+            formatter: (val) => formatNumber(val),
             fontSize: 22,
             fontWeight: "bold",
             offsetCenter: [0, "-15%"],
@@ -157,7 +158,7 @@ export class MeterChart extends Component {
           data: [
             {
               value: currentVal,
-              name: `Meta: ${targetVal}`,
+              name: `Meta: ${formatNumber(targetVal)}`,
             },
           ],
         },

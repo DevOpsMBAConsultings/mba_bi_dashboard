@@ -99,6 +99,8 @@ export class StackedColumnChart extends Component {
     const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const clean = (n) => Math.round(Number(n) * 100) / 100;
+    const textOnBar = computedStyle.getPropertyValue("--bs-white").trim() || "#ffffff";
+    const formatNumber = (n) => clean(n).toLocaleString("es-PA", { maximumFractionDigits: 2 });
     const formatLabel = (text, maxLength = 15) => {
       if (!text || typeof text !== "string") return text;
       return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
@@ -122,9 +124,9 @@ export class StackedColumnChart extends Component {
         position: "inside",
         formatter: (params) => {
           const val = params.value;
-          return val !== null && val !== undefined && val !== 0 ? val : "";
+          return val !== null && val !== undefined && val !== 0 ? formatNumber(val) : "";
         },
-        color: "#ffffff",
+        color: textOnBar,
         fontWeight: "bold",
         fontSize: 10,
       },
@@ -146,10 +148,10 @@ export class StackedColumnChart extends Component {
           params.forEach((item) => {
             const val = Number(item.value) || 0;
             total += val;
-            res += `${item.marker} ${item.seriesName}: <strong>${item.value}</strong><br/>`;
+            res += `${item.marker} ${item.seriesName}: <strong>${formatNumber(item.value)}</strong><br/>`;
           });
           if (params.length > 1) {
-            res += `<hr style="margin:4px 0; border-top:1px solid #ccc;"/>Total: <strong>${clean(total)}</strong>`;
+            res += `<hr style="margin:4px 0; border-top:1px solid #ccc;"/>Total: <strong>${formatNumber(total)}</strong>`;
           }
           return res;
         },

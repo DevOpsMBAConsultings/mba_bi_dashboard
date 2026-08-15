@@ -99,6 +99,7 @@ export class AreaChart extends Component {
     const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const clean = (n) => Math.round(Number(n) * 100) / 100;
+    const formatNumber = (n) => clean(n).toLocaleString("es-PA", { maximumFractionDigits: 2 });
 
     const series = valueKeys.map((key, idx) => ({
       name: key,
@@ -123,7 +124,7 @@ export class AreaChart extends Component {
       tooltip: {
         trigger: "item",
         formatter: (params) => {
-          return `<strong>${params.data.category}</strong><br/>${params.marker} ${params.seriesName}: <strong>${params.value}</strong>`;
+          return `<strong>${params.data.category}</strong><br/>${params.marker} ${params.seriesName}: <strong>${formatNumber(params.value)}</strong>`;
         },
       },
       legend: {

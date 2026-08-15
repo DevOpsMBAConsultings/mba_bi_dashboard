@@ -99,6 +99,7 @@ export class LineChart extends Component {
     const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const clean = (n) => Math.round(Number(n) * 100) / 100;
+    const formatNumber = (n) => clean(n).toLocaleString("es-PA", { maximumFractionDigits: 2 });
     const formatLabel = (text, maxLength = 15) => {
       if (!text || typeof text !== "string") return text;
       return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
@@ -137,7 +138,7 @@ export class LineChart extends Component {
           if (!params || !params.length) return "";
           let res = `<strong>${params[0].name}</strong><br/>`;
           params.forEach((item) => {
-            res += `${item.marker} ${item.seriesName}: <strong>${item.value}</strong><br/>`;
+            res += `${item.marker} ${item.seriesName}: <strong>${formatNumber(item.value)}</strong><br/>`;
           });
           return res;
         },

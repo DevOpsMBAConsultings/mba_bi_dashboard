@@ -93,6 +93,8 @@ export class PyramidChart extends Component {
     const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
     const clean = (n) => Math.round(Number(n) * 100) / 100;
+    const textOnBar = computedStyle.getPropertyValue("--bs-white").trim() || "#ffffff";
+    const formatNumber = (n) => clean(n).toLocaleString("es-PA", { maximumFractionDigits: 2 });
 
     const chartData = data.map((item) => {
       let val = item.value;
@@ -115,7 +117,7 @@ export class PyramidChart extends Component {
       tooltip: {
         trigger: "item",
         formatter: (params) => {
-          return `<strong>${params.name}</strong><br/>${params.marker} Nivel: <strong>${params.value}</strong> (${params.percent}%)`;
+          return `<strong>${params.name}</strong><br/>${params.marker} Nivel: <strong>${formatNumber(params.value)}</strong> (${params.percent}%)`;
         },
       },
       legend: {
@@ -140,9 +142,9 @@ export class PyramidChart extends Component {
             show: true,
             position: "inside",
             formatter: (params) => {
-              return `${params.name}: ${params.value}`;
+              return `${params.name}: ${formatNumber(params.value)}`;
             },
-            color: "#ffffff",
+            color: textOnBar,
             fontWeight: "bold",
             fontSize: 11,
           },

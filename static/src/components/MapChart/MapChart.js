@@ -92,6 +92,7 @@ export class MapChart extends Component {
     this.chartInstance = echarts.init(container);
 
     const clean = (n) => Math.round(Number(n) * 100) / 100;
+    const formatNumber = (n) => clean(n).toLocaleString("es-PA", { maximumFractionDigits: 2 });
 
     let maxVal = 0;
     data.forEach((d) => {
@@ -119,7 +120,7 @@ export class MapChart extends Component {
           if (isNaN(params.value)) {
             return `<strong>${params.name}</strong><br/>Sin datos`;
           }
-          return `<strong>${params.name}</strong><br/>Valor: <strong>${params.value}</strong>`;
+          return `<strong>${params.name}</strong><br/>Valor: <strong>${formatNumber(params.value)}</strong>`;
         },
       },
       visualMap: {
