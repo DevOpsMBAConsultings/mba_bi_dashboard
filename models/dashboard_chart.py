@@ -2717,6 +2717,22 @@ class DashboardChart(models.Model):
                 lambda rft: not getattr(rft, conf_obj.sort_field)
             )
             records = sorted_record
+        elif conf_obj.group_by and conf_obj.group_by in record_obj._fields:
+            field_type = record_obj._fields[conf_obj.group_by].type
+            if field_type in ["date", "datetime"] or conf_obj.time_range:
+                reverse_order = (
+                    conf_obj.sort_order == "desc" if conf_obj.sort_order else False
+                )
+                sorted_record = records.filtered(
+                    lambda rft: getattr(rft, conf_obj.group_by)
+                ).sorted(
+                    key=lambda sr: getattr(sr, conf_obj.group_by),
+                    reverse=reverse_order,
+                )
+                sorted_record |= records.filtered(
+                    lambda rft: not getattr(rft, conf_obj.group_by)
+                )
+                records = sorted_record
         if conf_obj.hide_false_value:
             records = records.filtered(lambda nonz: getattr(nonz, conf_obj.group_by))
             if conf_obj.sub_group_by:
@@ -2933,6 +2949,23 @@ class DashboardChart(models.Model):
                 lambda arft: not getattr(arft, conf_obj.sort_field)
             )
             all_records = sort_records
+        elif conf_obj.group_by and conf_obj.group_by in record_obj._fields:
+            field_type = record_obj._fields[conf_obj.group_by].type
+            if field_type in ["date", "datetime"] or conf_obj.time_range:
+                reverse_order = (
+                    conf_obj.sort_order == "desc" if conf_obj.sort_order else False
+                )
+                sort_records = self.env[conf_obj.model]
+                sort_records |= all_records.filtered(
+                    lambda arft: getattr(arft, conf_obj.group_by)
+                ).sorted(
+                    key=lambda rc: getattr(rc, conf_obj.group_by),
+                    reverse=reverse_order,
+                )
+                sort_records |= all_records.filtered(
+                    lambda arft: not getattr(arft, conf_obj.group_by)
+                )
+                all_records = sort_records
 
         if conf_obj.hide_false_value:
             all_records = all_records.filtered(

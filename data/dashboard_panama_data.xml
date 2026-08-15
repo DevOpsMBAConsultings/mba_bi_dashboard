@@ -95,6 +95,7 @@
         <field name="measurement_field_id" ref="account.field_account_move__amount_total_signed"/>
         <field name="group_by_id" ref="account.field_account_move__invoice_date"/>
         <field name="time_range">day</field>
+        <field name="sort_order">asc</field>
         <field name="domain">[('move_type', 'in', ('out_invoice', 'out_refund')), ('state', '=', 'posted')]</field>
         <field name="data_type">sum</field>
         <field name="theme">animated</field>
@@ -190,6 +191,7 @@
         <field name="measurement_field_id" ref="account.field_account_payment__amount"/>
         <field name="group_by_id" ref="account.field_account_payment__date"/>
         <field name="time_range">day</field>
+        <field name="sort_order">asc</field>
         <field name="domain">[('payment_type', '=', 'inbound'), ('state', '=', 'posted')]</field>
         <field name="data_type">sum</field>
         <field name="theme">animated</field>
@@ -365,6 +367,7 @@
         <field name="measurement_field_id" ref="sale.field_sale_order__amount_total"/>
         <field name="group_by_id" ref="sale.field_sale_order__date_order"/>
         <field name="time_range">month</field>
+        <field name="sort_order">asc</field>
         <field name="domain">[('state', 'in', ('sale', 'done'))]</field>
         <field name="data_type">sum</field>
         <field name="theme">animated</field>
