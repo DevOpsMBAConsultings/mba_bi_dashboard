@@ -20,6 +20,7 @@ export class MapChart extends Component {
     this.orm = useService("orm");
     this.chartInstance = null;
     this.resizeHandler = null;
+    this.resizeObserver = null;
     this.state = useState({ isError: false, errorMessage: false });
 
     this.themePalettes = {
@@ -46,6 +47,10 @@ export class MapChart extends Component {
       if (this.resizeHandler) {
         window.removeEventListener("resize", this.resizeHandler);
         this.resizeHandler = null;
+      }
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect();
+        this.resizeObserver = null;
       }
       if (this.chartInstance) {
         this.chartInstance.dispose();
@@ -86,6 +91,8 @@ export class MapChart extends Component {
 
     this.chartInstance = echarts.init(container);
 
+    const clean = (n) => Math.round(Number(n) * 100) / 100;
+
     let maxVal = 0;
     data.forEach((d) => {
       const v = Number(d.value) || 0;
@@ -100,7 +107,7 @@ export class MapChart extends Component {
 
     const chartData = data.map((d) => ({
       name: d.name || d.category,
-      value: d.value || 0,
+      value: clean(d.value || 0),
       id: d.id,
       record_id: d.record_id,
     }));
@@ -181,6 +188,16 @@ export class MapChart extends Component {
       };
       window.addEventListener("resize", this.resizeHandler);
     }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
+    });
+    this.resizeObserver.observe(container);
   }
 }
 

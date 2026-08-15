@@ -21,6 +21,7 @@ export class BarChart extends Component {
     this.orm = useService("orm");
     this.chartInstance = null;
     this.resizeHandler = null;
+    this.resizeObserver = null;
     this.state = useState({ isError: false, errorMessage: false });
 
     // Paletas de temas compatibles con Odoo 18
@@ -48,6 +49,10 @@ export class BarChart extends Component {
       if (this.resizeHandler) {
         window.removeEventListener("resize", this.resizeHandler);
         this.resizeHandler = null;
+      }
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect();
+        this.resizeObserver = null;
       }
       if (this.chartInstance) {
         this.chartInstance.dispose();
@@ -98,6 +103,7 @@ export class BarChart extends Component {
     const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
     const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
+    const clean = (n) => Math.round(Number(n) * 100) / 100;
     const formatLabel = (text, maxLength = 18) => {
       if (!text || typeof text !== "string") return text;
       return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
@@ -112,7 +118,7 @@ export class BarChart extends Component {
         color: palette[idx % palette.length],
       },
       data: data.map((d) => ({
-        value: d[key] || 0,
+        value: clean(d[key] || 0),
         record_id: d.record_id,
         category: d.category,
       })),
@@ -209,7 +215,7 @@ export class BarChart extends Component {
       });
     }
 
-    // Auto resize
+    // Auto resize en ventana
     if (!this.resizeHandler) {
       this.resizeHandler = () => {
         if (this.chartInstance) {
@@ -218,6 +224,17 @@ export class BarChart extends Component {
       };
       window.addEventListener("resize", this.resizeHandler);
     }
+
+    // Observador de cambio de tamaño sobre el contenedor GridStack
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
+    });
+    this.resizeObserver.observe(container);
   }
 }
 

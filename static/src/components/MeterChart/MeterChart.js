@@ -20,6 +20,7 @@ export class MeterChart extends Component {
     this.orm = useService("orm");
     this.chartInstance = null;
     this.resizeHandler = null;
+    this.resizeObserver = null;
     this.state = useState({ isError: false, errorMessage: false });
 
     useEffect(
@@ -37,6 +38,10 @@ export class MeterChart extends Component {
       if (this.resizeHandler) {
         window.removeEventListener("resize", this.resizeHandler);
         this.resizeHandler = null;
+      }
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect();
+        this.resizeObserver = null;
       }
       if (this.chartInstance) {
         this.chartInstance.dispose();
@@ -73,8 +78,9 @@ export class MeterChart extends Component {
 
     this.chartInstance = echarts.init(container);
 
-    const targetVal = Number(data.target) || 100;
-    const currentVal = Number(data.current_value) || 0;
+    const clean = (n) => Math.round(Number(n) * 100) / 100;
+    const targetVal = clean(Number(data.target) || 100);
+    const currentVal = clean(Number(data.current_value) || 0);
 
     const computedStyle = getComputedStyle(document.documentElement);
     const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
@@ -180,6 +186,16 @@ export class MeterChart extends Component {
       };
       window.addEventListener("resize", this.resizeHandler);
     }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
+    });
+    this.resizeObserver.observe(container);
   }
 }
 

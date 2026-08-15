@@ -20,6 +20,7 @@ export class RadialChart extends Component {
     this.orm = useService("orm");
     this.chartInstance = null;
     this.resizeHandler = null;
+    this.resizeObserver = null;
     this.state = useState({ isError: false, errorMessage: false });
 
     this.themePalettes = {
@@ -46,6 +47,10 @@ export class RadialChart extends Component {
       if (this.resizeHandler) {
         window.removeEventListener("resize", this.resizeHandler);
         this.resizeHandler = null;
+      }
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect();
+        this.resizeObserver = null;
       }
       if (this.chartInstance) {
         this.chartInstance.dispose();
@@ -92,12 +97,14 @@ export class RadialChart extends Component {
     const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
     const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
+    const clean = (n) => Math.round(Number(n) * 100) / 100;
+
     const series = valueKeys.map((key, idx) => ({
       name: key,
       type: "bar",
       coordinateSystem: "polar",
       data: data.map((d) => ({
-        value: d[key] || 0,
+        value: clean(d[key] || 0),
         record_id: d.record_id,
         category: d.category,
       })),
@@ -178,6 +185,16 @@ export class RadialChart extends Component {
       };
       window.addEventListener("resize", this.resizeHandler);
     }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
+    });
+    this.resizeObserver.observe(container);
   }
 }
 

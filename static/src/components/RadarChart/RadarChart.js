@@ -20,6 +20,7 @@ export class RadarChart extends Component {
     this.orm = useService("orm");
     this.chartInstance = null;
     this.resizeHandler = null;
+    this.resizeObserver = null;
     this.state = useState({ isError: false, errorMessage: false });
 
     this.themePalettes = {
@@ -46,6 +47,10 @@ export class RadarChart extends Component {
       if (this.resizeHandler) {
         window.removeEventListener("resize", this.resizeHandler);
         this.resizeHandler = null;
+      }
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect();
+        this.resizeObserver = null;
       }
       if (this.chartInstance) {
         this.chartInstance.dispose();
@@ -92,6 +97,8 @@ export class RadarChart extends Component {
     const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
     const textMuted = computedStyle.getPropertyValue("--o-gray-700").trim() || "#495057";
 
+    const clean = (n) => Math.round(Number(n) * 100) / 100;
+
     let maxVal = 0;
     data.forEach((d) => {
       valueKeys.forEach((k) => {
@@ -108,7 +115,7 @@ export class RadarChart extends Component {
 
     const seriesData = valueKeys.map((key, idx) => ({
       name: key,
-      value: data.map((d) => d[key] || 0),
+      value: data.map((d) => clean(d[key] || 0)),
       itemStyle: { color: palette[idx % palette.length] },
       lineStyle: { width: 2, color: palette[idx % palette.length] },
       areaStyle: { opacity: 0.25, color: palette[idx % palette.length] },
@@ -186,5 +193,15 @@ export class RadarChart extends Component {
       };
       window.addEventListener("resize", this.resizeHandler);
     }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.chartInstance) {
+        this.chartInstance.resize();
+      }
+    });
+    this.resizeObserver.observe(container);
   }
 }
