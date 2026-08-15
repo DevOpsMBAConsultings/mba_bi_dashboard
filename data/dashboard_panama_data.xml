@@ -206,25 +206,25 @@
 
 
     <!-- ========================================================= -->
-    <!-- 3. GESTIÓN DE CARTERA Y COBRANZAS (CxC)                   -->
+    <!-- 3. GESTIÓN DE CUENTAS POR COBRAR Y POR PAGAR (CxC / CxP)  -->
     <!-- ========================================================= -->
     <record id="dashboard_panama_cxc" model="dashboard.dashboard">
-        <field name="name">Gestión de Cartera y Cobranzas (CxC)</field>
+        <field name="name">Gestión de Cuentas por Cobrar y por Pagar (CxC / CxP)</field>
         <field name="auto_reload_duration">120000</field>
         <field name="parent_menu_id" ref="mba_bi_dashboard.parent_dashboard_menu"/>
         <field name="menu_sequence">3</field>
     </record>
 
-    <!-- KPI 1: Cartera Total Pendiente -->
+    <!-- KPI 1: Cartera Clientes a Crédito (CxC) -->
     <record id="kpi_cartera_pendiente" model="dashboard.chart">
-        <field name="name">Cartera Total por Cobrar (Clientes)</field>
+        <field name="name">Cartera Clientes a Crédito (CxC)</field>
         <field name="dashboard_id" ref="dashboard_panama_cxc"/>
         <field name="chart_type">kpi</field>
         <field name="model_id" ref="account.model_account_move"/>
         <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_residual_signed'))]"/>
         <field name="measurement_field_id" ref="account.field_account_move__amount_residual_signed"/>
         <field name="data_type">sum</field>
-        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial'))]</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial')), ('invoice_payment_term_id', '!=', False)]</field>
         <field name="layout_type">layout1</field>
         <field name="background_color">#e06d53</field>
         <field name="font_color">#ffffff</field>
@@ -232,9 +232,9 @@
         <field name="default_icon">clock-o</field>
     </record>
 
-    <!-- KPI 2: Cuentas por Pagar Proveedores -->
+    <!-- KPI 2: Cuentas por Pagar Proveedores (CxP) -->
     <record id="kpi_cxp_proveedores" model="dashboard.chart">
-        <field name="name">Cuentas por Pagar (Proveedores)</field>
+        <field name="name">Cuentas por Pagar (Proveedores CxP)</field>
         <field name="dashboard_id" ref="dashboard_panama_cxc"/>
         <field name="chart_type">kpi</field>
         <field name="model_id" ref="account.model_account_move"/>
@@ -249,30 +249,32 @@
         <field name="default_icon">credit-card</field>
     </record>
 
-    <!-- Gráfico 1: Top Clientes con Saldo Pendiente -->
+    <!-- Gráfico 1: Cartera por Plazo de Crédito (30, 60, 90, Otro) -->
+    <record id="chart_cartera_plazo_credito" model="dashboard.chart">
+        <field name="name">Distribución de Cartera por Plazo de Crédito</field>
+        <field name="dashboard_id" ref="dashboard_panama_cxc"/>
+        <field name="chart_type">doughnut_chart</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_residual_signed'))]"/>
+        <field name="measurement_field_id" ref="account.field_account_move__amount_residual_signed"/>
+        <field name="group_by_id" ref="account.field_account_move__invoice_payment_term_id"/>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial')), ('invoice_payment_term_id', '!=', False)]</field>
+        <field name="data_type">sum</field>
+        <field name="theme">animated</field>
+    </record>
+
+    <!-- Gráfico 2: Top Clientes con Saldo por Cobrar a Crédito -->
     <record id="chart_top_cartera_clientes" model="dashboard.chart">
-        <field name="name">Top Clientes con Saldo por Cobrar</field>
+        <field name="name">Top Clientes con Saldo por Cobrar a Crédito</field>
         <field name="dashboard_id" ref="dashboard_panama_cxc"/>
         <field name="chart_type">bar_chart</field>
         <field name="model_id" ref="account.model_account_move"/>
         <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_residual_signed'))]"/>
         <field name="measurement_field_id" ref="account.field_account_move__amount_residual_signed"/>
         <field name="group_by_id" ref="account.field_account_move__partner_id"/>
-        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial'))]</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial')), ('invoice_payment_term_id', '!=', False)]</field>
         <field name="data_type">sum</field>
         <field name="limit_record">10</field>
-        <field name="theme">animated</field>
-    </record>
-
-    <!-- Gráfico 2: Facturas por Estado de Pago -->
-    <record id="chart_facturas_estado_pago" model="dashboard.chart">
-        <field name="name">Distribución de Facturas por Estado de Pago</field>
-        <field name="dashboard_id" ref="dashboard_panama_cxc"/>
-        <field name="chart_type">pie_chart</field>
-        <field name="model_id" ref="account.model_account_move"/>
-        <field name="group_by_id" ref="account.field_account_move__partner_id"/>
-        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
-        <field name="data_type">count</field>
         <field name="theme">animated</field>
     </record>
 

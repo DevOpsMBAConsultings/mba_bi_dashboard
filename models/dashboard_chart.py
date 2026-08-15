@@ -1901,6 +1901,25 @@ class DashboardChart(models.Model):
                 for pol in all_records
                 if (pol.product_qty or 0.0) > (pol.qty_received or 0.0)
             )
+        elif conf_obj.model == "account.move" and any(
+            kw in (conf_obj.name or "").lower() for kw in ["crédito", "credito"]
+        ):
+            is_monetary = True
+            credit_records = all_records.filtered(
+                lambda inv: inv.invoice_payment_term_id
+                and not any(
+                    kw in (inv.invoice_payment_term_id.name or "").lower()
+                    for kw in ("contado", "inmediato", "immediate", "0 día", "0 dia")
+                )
+            )
+            count_list = [
+                getattr(record, conf_obj.measurement_field_id.name)
+                for record in credit_records
+                if conf_obj.measurement_field_id
+            ]
+            count = sum(count_list) if count_list else 0
+            if conf_obj.data_type == "average" and count != 0:
+                count /= len(count_list)
         elif conf_obj.data_type == "count":
             count = len(all_records)
         elif conf_obj.data_type in ["sum", "average"]:
@@ -2695,6 +2714,17 @@ class DashboardChart(models.Model):
                     else getattr(record, conf_obj.date_filter_field)
                 )
                 == today_date
+            )
+
+        if conf_obj.model == "account.move" and any(
+            kw in (conf_obj.name or "").lower() for kw in ["crédito", "credito"]
+        ):
+            records = records.filtered(
+                lambda inv: inv.invoice_payment_term_id
+                and not any(
+                    kw in (inv.invoice_payment_term_id.name or "").lower()
+                    for kw in ("contado", "inmediato", "immediate", "0 día", "0 dia")
+                )
             )
 
         if not records:
