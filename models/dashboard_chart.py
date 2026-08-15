@@ -1848,7 +1848,20 @@ class DashboardChart(models.Model):
         count = 0
         is_monetary = False
 
-        if conf_obj.model == "stock.quant":
+        custom_display_count = None
+        if conf_obj.model == "res.partner" and any(
+            kw in (conf_obj.name or "").lower() for kw in ["inactivo", "inactivos", "dormido", "dormidos"]
+        ):
+            date_30d = datetime.now() - timedelta(days=30)
+            all_recent_so = self.env["sale.order"].search([("date_order", ">=", date_30d)])
+            active_customer_ids = set(all_recent_so.mapped("partner_id.id"))
+            total_customers = all_records.filtered(lambda c: c.customer_rank > 0)
+            inactive_customers = total_customers.filtered(lambda c: c.id not in active_customer_ids)
+            count = len(inactive_customers)
+            total_count = len(total_customers) or 1
+            pct = (count / total_count) * 100
+            custom_display_count = f"{count} / {total_count} ({pct:.0f}%)"
+        elif conf_obj.model == "stock.quant":
             is_monetary = True
             if "proyectado" in (conf_obj.name or "").lower():
                 # Inv. Operativo Proyectado
@@ -1981,7 +1994,9 @@ class DashboardChart(models.Model):
             ):
                 is_monetary = True
 
-        if is_monetary:
+        if custom_display_count:
+            count_with_symbol = custom_display_count
+        elif is_monetary:
             currency = company.currency_id or self.env.company.currency_id
             count_with_symbol = format_amount(record_obj.env, count, currency)
         elif conf_obj.show_unit and conf_obj.unit_type == "custom":
