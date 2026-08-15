@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+
+    <!-- ========================================================= -->
+    <!-- 1. TABLERO FINANCIERO Y FISCAL (PANAMÁ)                    -->
+    <!-- ========================================================= -->
+    <record id="dashboard_panama_financiero" model="dashboard.dashboard">
+        <field name="name">Tablero Financiero y Fiscal (Panamá)</field>
+        <field name="auto_reload_duration">120000</field>
+        <field name="parent_menu_id" ref="mba_bi_dashboard.parent_dashboard_menu"/>
+        <field name="menu_sequence">1</field>
+    </record>
+
+    <!-- KPI 1: Facturación del Mes -->
+    <record id="kpi_facturacion_mes" model="dashboard.chart">
+        <field name="name">Facturación Neta (Mes Actual)</field>
+        <field name="dashboard_id" ref="dashboard_panama_financiero"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_untaxed_signed'))]"/>
+        <field name="measurement_field_id" ref="account.field_account_move__amount_untaxed_signed"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
+        <field name="date_filter_field_id" ref="account.field_account_move__invoice_date"/>
+        <field name="date_filter_option">this_month</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#71639e</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">dollar</field>
+    </record>
+
+    <!-- KPI 2: Débito Fiscal ITBMS -->
+    <record id="kpi_itbms_recaudado" model="dashboard.chart">
+        <field name="name">Débito Fiscal ITBMS (Mes Actual)</field>
+        <field name="dashboard_id" ref="dashboard_panama_financiero"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_tax_signed'))]"/>
+        <field name="measurement_field_id" ref="account.field_account_move__amount_tax_signed"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
+        <field name="date_filter_field_id" ref="account.field_account_move__invoice_date"/>
+        <field name="date_filter_option">this_month</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#28a745</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">university</field>
+    </record>
+
+    <!-- KPI 3: Cuentas por Cobrar -->
+    <record id="kpi_cuentas_por_cobrar" model="dashboard.chart">
+        <field name="name">Cuentas por Cobrar (Clientes)</field>
+        <field name="dashboard_id" ref="dashboard_panama_financiero"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_residual_signed'))]"/>
+        <field name="measurement_field_id" ref="account.field_account_move__amount_residual_signed"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial'))]</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#17a2b8</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">money</field>
+    </record>
+
+    <!-- KPI 4: Cuentas por Pagar -->
+    <record id="kpi_cuentas_por_pagar" model="dashboard.chart">
+        <field name="name">Cuentas por Pagar (Proveedores)</field>
+        <field name="dashboard_id" ref="dashboard_panama_financiero"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_residual_signed'))]"/>
+        <field name="measurement_field_id" ref="account.field_account_move__amount_residual_signed"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('move_type', '=', 'in_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial'))]</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#e06d53</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">credit-card</field>
+    </record>
+
+    <!-- Gráfico 1: Facturación Mensual del Año -->
+    <record id="chart_facturacion_mensual" model="dashboard.chart">
+        <field name="name">Evolución de Facturación Mensual</field>
+        <field name="dashboard_id" ref="dashboard_panama_financiero"/>
+        <field name="chart_type">column_chart</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_total_signed'))]"/>
+        <field name="measurement_field_id" ref="account.field_account_move__amount_total_signed"/>
+        <field name="group_by_id" ref="account.field_account_move__invoice_date"/>
+        <field name="time_range">month</field>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
+        <field name="data_type">sum</field>
+        <field name="theme">animated</field>
+    </record>
+
+    <!-- Gráfico 2: Top Clientes -->
+    <record id="chart_top_clientes" model="dashboard.chart">
+        <field name="name">Top 10 Clientes por Facturación</field>
+        <field name="dashboard_id" ref="dashboard_panama_financiero"/>
+        <field name="chart_type">doughnut_chart</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="measurement_field_ids" eval="[(4, ref('account.field_account_move__amount_total_signed'))]"/>
+        <field name="measurement_field_id" ref="account.field_account_move__amount_total_signed"/>
+        <field name="group_by_id" ref="account.field_account_move__partner_id"/>
+        <field name="domain">[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]</field>
+        <field name="data_type">sum</field>
+        <field name="limit_record">10</field>
+        <field name="theme">animated</field>
+    </record>
+
+    <function name="create_update_menu" model="dashboard.dashboard">
+        <value eval="[ref('dashboard_panama_financiero')]" />
+    </function>
+
+
+    <!-- ========================================================= -->
+    <!-- 2. TABLERO COMERCIAL Y VENTAS                             -->
+    <!-- ========================================================= -->
+    <record id="dashboard_panama_ventas" model="dashboard.dashboard">
+        <field name="name">Tablero Comercial y Ventas</field>
+        <field name="auto_reload_duration">120000</field>
+        <field name="parent_menu_id" ref="mba_bi_dashboard.parent_dashboard_menu"/>
+        <field name="menu_sequence">2</field>
+    </record>
+
+    <!-- KPI 1: Cotizaciones del Mes -->
+    <record id="kpi_cotizaciones_activas" model="dashboard.chart">
+        <field name="name">Cotizaciones Activas (Mes Actual)</field>
+        <field name="dashboard_id" ref="dashboard_panama_ventas"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="measurement_field_ids" eval="[(4, ref('sale.field_sale_order__amount_total'))]"/>
+        <field name="measurement_field_id" ref="sale.field_sale_order__amount_total"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('state', 'in', ('draft', 'sent'))]</field>
+        <field name="date_filter_field_id" ref="sale.field_sale_order__date_order"/>
+        <field name="date_filter_option">this_month</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#ffac00</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">file-text-o</field>
+    </record>
+
+    <!-- KPI 2: Ventas Confirmadas -->
+    <record id="kpi_ventas_confirmadas" model="dashboard.chart">
+        <field name="name">Ventas Confirmadas (Mes Actual)</field>
+        <field name="dashboard_id" ref="dashboard_panama_ventas"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="measurement_field_ids" eval="[(4, ref('sale.field_sale_order__amount_total'))]"/>
+        <field name="measurement_field_id" ref="sale.field_sale_order__amount_total"/>
+        <field name="data_type">sum</field>
+        <field name="domain">[('state', 'in', ('sale', 'done'))]</field>
+        <field name="date_filter_field_id" ref="sale.field_sale_order__date_order"/>
+        <field name="date_filter_option">this_month</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#28a745</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">shopping-cart</field>
+    </record>
+
+    <!-- KPI 3: Ticket Promedio -->
+    <record id="kpi_ticket_promedio" model="dashboard.chart">
+        <field name="name">Ticket Promedio de Venta</field>
+        <field name="dashboard_id" ref="dashboard_panama_ventas"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="measurement_field_ids" eval="[(4, ref('sale.field_sale_order__amount_total'))]"/>
+        <field name="measurement_field_id" ref="sale.field_sale_order__amount_total"/>
+        <field name="data_type">average</field>
+        <field name="domain">[('state', 'in', ('sale', 'done'))]</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#17a2b8</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">line-chart</field>
+    </record>
+
+    <!-- Gráfico 1: Ventas por Vendedor -->
+    <record id="chart_ventas_vendedor" model="dashboard.chart">
+        <field name="name">Rendimiento por Asesor Comercial</field>
+        <field name="dashboard_id" ref="dashboard_panama_ventas"/>
+        <field name="chart_type">bar_chart</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="measurement_field_ids" eval="[(4, ref('sale.field_sale_order__amount_total'))]"/>
+        <field name="measurement_field_id" ref="sale.field_sale_order__amount_total"/>
+        <field name="group_by_id" ref="sale.field_sale_order__user_id"/>
+        <field name="domain">[('state', 'in', ('sale', 'done'))]</field>
+        <field name="data_type">sum</field>
+        <field name="theme">animated</field>
+    </record>
+
+    <!-- Gráfico 2: Tendencia Mensual de Ventas -->
+    <record id="chart_tendencia_ventas" model="dashboard.chart">
+        <field name="name">Tendencia Mensual de Pedidos de Venta</field>
+        <field name="dashboard_id" ref="dashboard_panama_ventas"/>
+        <field name="chart_type">line_chart</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="measurement_field_ids" eval="[(4, ref('sale.field_sale_order__amount_total'))]"/>
+        <field name="measurement_field_id" ref="sale.field_sale_order__amount_total"/>
+        <field name="group_by_id" ref="sale.field_sale_order__date_order"/>
+        <field name="time_range">month</field>
+        <field name="domain">[('state', 'in', ('sale', 'done'))]</field>
+        <field name="data_type">sum</field>
+        <field name="theme">animated</field>
+    </record>
+
+    <function name="create_update_menu" model="dashboard.dashboard">
+        <value eval="[ref('dashboard_panama_ventas')]" />
+    </function>
+
+
+    <!-- ========================================================= -->
+    <!-- 3. TABLERO DE OPERACIONES E INVENTARIO                    -->
+    <!-- ========================================================= -->
+    <record id="dashboard_panama_inventario" model="dashboard.dashboard">
+        <field name="name">Tablero de Operaciones e Inventario</field>
+        <field name="auto_reload_duration">120000</field>
+        <field name="parent_menu_id" ref="mba_bi_dashboard.parent_dashboard_menu"/>
+        <field name="menu_sequence">3</field>
+    </record>
+
+    <!-- KPI 1: Envíos Pendientes -->
+    <record id="kpi_envios_pendientes" model="dashboard.chart">
+        <field name="name">Entregas Pendientes a Clientes</field>
+        <field name="dashboard_id" ref="dashboard_panama_inventario"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="data_type">count</field>
+        <field name="domain">[('picking_type_code', '=', 'outgoing'), ('state', 'in', ('assigned', 'confirmed', 'waiting'))]</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#007bff</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">truck</field>
+    </record>
+
+    <!-- KPI 2: Recepciones Pendientes -->
+    <record id="kpi_recepciones_pendientes" model="dashboard.chart">
+        <field name="name">Recepciones Pendientes de Proveedores</field>
+        <field name="dashboard_id" ref="dashboard_panama_inventario"/>
+        <field name="chart_type">kpi</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="data_type">count</field>
+        <field name="domain">[('picking_type_code', '=', 'incoming'), ('state', 'in', ('assigned', 'confirmed', 'waiting'))]</field>
+        <field name="layout_type">layout1</field>
+        <field name="background_color">#6f42c1</field>
+        <field name="font_color">#ffffff</field>
+        <field name="icon_option">default</field>
+        <field name="default_icon">cubes</field>
+    </record>
+
+    <!-- Gráfico 1: Movimientos por Tipo -->
+    <record id="chart_movimientos_tipo" model="dashboard.chart">
+        <field name="name">Operaciones por Tipo de Almacén</field>
+        <field name="dashboard_id" ref="dashboard_panama_inventario"/>
+        <field name="chart_type">column_chart</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="group_by_id" ref="stock.field_stock_picking__picking_type_id"/>
+        <field name="data_type">count</field>
+        <field name="theme">animated</field>
+    </record>
+
+    <!-- Gráfico 2: Estado de Operaciones -->
+    <record id="chart_estado_operaciones" model="dashboard.chart">
+        <field name="name">Distribución por Estado de Operación</field>
+        <field name="dashboard_id" ref="dashboard_panama_inventario"/>
+        <field name="chart_type">pie_chart</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="group_by_id" ref="stock.field_stock_picking__state"/>
+        <field name="data_type">count</field>
+        <field name="theme">animated</field>
+    </record>
+
+    <function name="create_update_menu" model="dashboard.dashboard">
+        <value eval="[ref('dashboard_panama_inventario')]" />
+    </function>
+
+</odoo>
