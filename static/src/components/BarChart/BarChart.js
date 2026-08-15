@@ -353,7 +353,7 @@ export class BarChart extends Component {
               centerY: am5.p50,
               centerX: am5.p0,
               dx: 8,
-              fill: am5.color(0xffffff),
+              fill: am5.color(0x000000),
               text: "{valueX}",
               populateText: true,
             }),
@@ -383,7 +383,7 @@ export class BarChart extends Component {
                 centerX: am5.p100,
                 centerY: am5.p50,
                 text: "{name}",
-                fill: am5.color(0xffffff),
+                fill: am5.color(0x000000),
                 populateText: true,
               }),
             });
