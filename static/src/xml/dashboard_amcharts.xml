@@ -36,8 +36,8 @@
                 </button>
             </div>
         </section>
-        <main style="height: calc(100vh - 110px); padding: 8px 12px; overflow: auto;">
-            <div style="overflow: auto; max-height: 98%;">
+        <main style="height: calc(100dvh - 110px); padding: 8px 12px; overflow: auto;">
+            <div>
                 <div class="grid-stack m-1" gs-w="36">
                     <t t-foreach="state.charts" t-as="chart" t-key="chart.id">
                         <div class="grid-stack-item m-1" t-att-data-chart-id="chart.id" t-att-gs-w="chart.w" t-att-gs-h="chart.h" t-att-gs-min-h="chart.minh" t-att-gs-x="chart.x" t-att-gs-y="chart.y">
