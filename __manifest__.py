@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "Tableros de Inteligencia de Negocio BI (MBA Consultings)",
-    "version": "18.0.1.0.18",
+    "version": "18.0.1.0.14",
     "category": "Productivity/Analytics",
     "summary": "Cuadros de mando interactivos, KPIs ejecutivos y analítica en tiempo real para Panamá | MBA Consultings",
     "description": """
@@ -49,6 +49,7 @@ Características Principales:
         "web.assets_backend": [
             "mba_bi_dashboard/static/src/lib/html2canvas.js",
             "mba_bi_dashboard/static/src/lib/jspdf.js",
+            "mba_bi_dashboard/static/src/lib/echarts/echarts.min.js",
             "mba_bi_dashboard/static/src/lib/amcharts/index.js",
             "mba_bi_dashboard/static/src/lib/amcharts/xy.js",
             "mba_bi_dashboard/static/src/lib/amcharts/exporting.js",
