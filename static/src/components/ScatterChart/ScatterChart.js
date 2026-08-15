@@ -82,11 +82,6 @@ export class ScatterChart extends Component {
 
     this.chartInstance = echarts.init(container);
 
-    const categories = rawData.map((d) => d.category);
-    const valueKeys = Object.keys(rawData[0]).filter(
-      (k) => !["category", "record_id", "isSubGroupBy"].includes(k)
-    );
-
     const palette = this.themePalettes[this.props.theme] || this.themePalettes.animated;
     const computedStyle = getComputedStyle(document.documentElement);
     const textDark = computedStyle.getPropertyValue("--o-gray-900").trim() || "#212529";
@@ -94,58 +89,83 @@ export class ScatterChart extends Component {
 
     const clean = (n) => Math.round(Number(n) * 100) / 100;
     const formatNumber = (n) => clean(n).toLocaleString("es-PA", { maximumFractionDigits: 2 });
-    const formatLabel = (text, maxLength = 15) => {
-      if (!text || typeof text !== "string") return text;
-      return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
-    };
 
-    const symbols = ["triangle", "circle", "diamond", "rect", "roundRect"];
+    const isXY = rawData.length > 0 && rawData[0].x !== undefined && rawData[0].y !== undefined;
 
-    const series = valueKeys.map((key, idx) => ({
-      name: key,
-      type: "scatter",
-      symbol: symbols[idx % symbols.length],
-      symbolSize: 12,
-      itemStyle: {
-        color: palette[idx % palette.length],
-      },
-      data: rawData.map((d) => ({
-        value: [d.category, clean(d[key] || 0)],
-        category: d.category,
-        record_id: d.record_id,
-      })),
-      emphasis: {
-        focus: "series",
+    let series = [];
+    let xAxisConfig = {};
+
+    if (isXY) {
+      series = [
+        {
+          name: this.props.name || "Dispersión",
+          type: "scatter",
+          symbol: "circle",
+          symbolSize: 10,
+          itemStyle: {
+            color: palette[0],
+          },
+          data: rawData.map((d) => ({
+            value: [clean(d.x || 0), clean(d.y || 0)],
+            name: d.name || d.category,
+            category: d.category,
+            record_id: d.record_id,
+          })),
+          emphasis: {
+            focus: "series",
+            itemStyle: {
+              shadowBlur: 8,
+              shadowColor: "rgba(0,0,0,0.3)",
+            },
+          },
+        },
+      ];
+
+      xAxisConfig = {
+        type: "value",
+        name: "Días de Cierre",
+        nameLocation: "middle",
+        nameGap: 25,
+        splitLine: { lineStyle: { type: "dashed", opacity: 0.3 } },
+        axisLabel: {
+          color: textMuted,
+          formatter: (val) => formatNumber(val),
+        },
+      };
+    } else {
+      const categories = rawData.map((d) => d.category);
+      const valueKeys = Object.keys(rawData[0]).filter(
+        (k) => !["category", "record_id", "isSubGroupBy"].includes(k)
+      );
+      const formatLabel = (text, maxLength = 15) => {
+        if (!text || typeof text !== "string") return text;
+        return text.length > maxLength ? text.substring(0, maxLength - 3) + "..." : text;
+      };
+      const symbols = ["triangle", "circle", "diamond", "rect", "roundRect"];
+
+      series = valueKeys.map((key, idx) => ({
+        name: key,
+        type: "scatter",
+        symbol: symbols[idx % symbols.length],
+        symbolSize: 12,
         itemStyle: {
-          shadowBlur: 8,
-          shadowColor: "rgba(0,0,0,0.3)",
+          color: palette[idx % palette.length],
         },
-      },
-    }));
+        data: rawData.map((d) => ({
+          value: [d.category, clean(d[key] || 0)],
+          category: d.category,
+          record_id: d.record_id,
+        })),
+        emphasis: {
+          focus: "series",
+          itemStyle: {
+            shadowBlur: 8,
+            shadowColor: "rgba(0,0,0,0.3)",
+          },
+        },
+      }));
 
-    const option = {
-      color: palette,
-      animationDuration: 800,
-      tooltip: {
-        trigger: "item",
-        formatter: (params) => {
-          return `<strong>${params.value[0]}</strong><br/>${params.marker} ${params.seriesName}: <strong>${formatNumber(params.value[1])}</strong>`;
-        },
-      },
-      legend: {
-        show: valueKeys.length > 1,
-        bottom: 0,
-        type: "scroll",
-        textStyle: { color: textMuted },
-      },
-      grid: {
-        left: "5%",
-        right: "5%",
-        top: "10%",
-        bottom: valueKeys.length > 1 ? "15%" : "8%",
-        containLabel: true,
-      },
-      xAxis: {
+      xAxisConfig = {
         type: "category",
         data: categories,
         axisLabel: {
@@ -155,13 +175,43 @@ export class ScatterChart extends Component {
           color: textMuted,
           fontSize: 11,
         },
+      };
+    }
+
+    const option = {
+      color: palette,
+      animationDuration: 800,
+      tooltip: {
+        trigger: "item",
+        formatter: (params) => {
+          if (isXY) {
+            const d = params.data;
+            return `<strong>${d.name || d.category}</strong><br/>${params.marker} Días de Cierre: <strong>${formatNumber(params.value[0])}</strong><br/>Monto: <strong>$${formatNumber(params.value[1])}</strong>`;
+          }
+          return `<strong>${params.value[0]}</strong><br/>${params.marker} ${params.seriesName}: <strong>${formatNumber(params.value[1])}</strong>`;
+        },
       },
+      legend: {
+        show: !isXY && series.length > 1,
+        bottom: 0,
+        type: "scroll",
+        textStyle: { color: textMuted },
+      },
+      grid: {
+        left: "5%",
+        right: "5%",
+        top: "10%",
+        bottom: isXY ? "12%" : (series.length > 1 ? "15%" : "8%"),
+        containLabel: true,
+      },
+      xAxis: xAxisConfig,
       yAxis: {
         type: "value",
+        name: isXY ? "Monto ($)" : "",
         splitLine: { lineStyle: { type: "dashed", opacity: 0.3 } },
         axisLabel: {
           color: textMuted,
-          formatter: (val) => val >= 1000 ? (val / 1000).toFixed(0) + "k" : val,
+          formatter: (val) => (val >= 1000 ? (val / 1000).toFixed(0) + "k" : val),
         },
       },
       series: series,

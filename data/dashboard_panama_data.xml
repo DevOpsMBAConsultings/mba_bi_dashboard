@@ -472,9 +472,8 @@
         <field name="dashboard_id" ref="dashboard_panama_ventas"/>
         <field name="chart_type">scatter_chart</field>
         <field name="model_id" ref="sale.model_sale_order"/>
-        <field name="measurement_field_ids" eval="[(4, ref('sale.field_sale_order__amount_total'))]"/>
+        <field name="measurement_field_ids" eval="[(4, ref('sale.field_sale_order__x_mba_dias_cierre')), (4, ref('sale.field_sale_order__amount_total'))]"/>
         <field name="measurement_field_id" ref="sale.field_sale_order__amount_total"/>
-        <field name="group_by_id" ref="sale.field_sale_order__name"/>
         <field name="date_filter_field_id" ref="sale.field_sale_order__date_order"/>
         <field name="date_filter_option">this_month</field>
         <field name="domain">[('state', 'in', ('sale', 'done'))]</field>

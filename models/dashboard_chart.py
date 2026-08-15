@@ -1340,7 +1340,7 @@ class DashboardChart(models.Model):
             "line_chart": self.get_measurement_group_data,
             "stackedcolumn_chart": self.get_measurement_group_data,
             "radial_chart": self.get_measurement_group_data,
-            "scatter_chart": self.get_measurement_group_data,
+            "scatter_chart": self.get_scatter_chart_data,
             "funnel_chart": self.get_category_value_data,
             "pyramid_chart": self.get_category_value_data,
             "pie_chart": self.get_category_value_data,
@@ -1759,12 +1759,62 @@ class DashboardChart(models.Model):
         """
         if extra_action and extra_action.get("domain"):
             domain = extra_action.get("prev_domains", domain)
-            if extra_action.get("current_group_by"):
-                group_by_id = group_by_id.browse(extra_action["current_group_by"])
             domain.append(
                 (group_by_id.name, "=", extra_action["domain"].get("record_id"))
             )
         return domain
+
+    def get_scatter_chart_data(self, conf):
+        """
+        Retorna puntos XY continuos para gráficos de dispersión reales.
+        X = primer campo numérico (o x_mba_dias_cierre)
+        Y = segundo campo numérico (o amount_total)
+        """
+        if not conf.model:
+            return {"type": "error", "message": "Please Select model!"}
+        
+        record_obj = self.env[conf.model]
+        domain = conf.domain.copy() if hasattr(conf, "domain") and conf.domain else []
+        if conf.company and "company_id" in record_obj._fields:
+            domain.append(("company_id", "in", [conf.company, False]))
+
+        if conf.date_filter_field and conf.date_filter_option and conf.date_filter_option != "none":
+            date_filter_domain = self.get_date_filter_domain(
+                conf.date_filter_field,
+                conf.date_filter_option,
+                conf.include_periods or 0,
+                conf.same_period_previous_years or 0,
+            )
+            if date_filter_domain and date_filter_domain.get("domain"):
+                domain.extend(date_filter_domain["domain"])
+
+        records = record_obj.search(domain)
+        if conf.limit_record > 0:
+            records = records[:conf.limit_record]
+
+        field_x = "x_mba_dias_cierre" if "x_mba_dias_cierre" in record_obj._fields else False
+        field_y = "amount_total" if "amount_total" in record_obj._fields else False
+
+        if hasattr(conf, "measurement_field_ids") and len(conf.measurement_field_ids) >= 2:
+            field_x = conf.measurement_field_ids[0].name
+            field_y = conf.measurement_field_ids[1].name
+        elif hasattr(conf, "measurement_field_ids") and len(conf.measurement_field_ids) == 1:
+            field_y = conf.measurement_field_ids[0].name
+        elif hasattr(conf, "measurement_field_id") and conf.measurement_field_id:
+            field_y = conf.measurement_field_id.name
+
+        data = []
+        for rec in records:
+            val_x = getattr(rec, field_x, 0.0) if field_x else 0.0
+            val_y = getattr(rec, field_y, 0.0) if field_y else 0.0
+            data.append({
+                "name": rec.display_name or rec.name,
+                "category": rec.display_name or rec.name,
+                "x": round(float(val_x or 0.0), 2),
+                "y": round(float(val_y or 0.0), 2),
+                "record_id": rec.id,
+            })
+        return data
 
     def get_tile_data(self, conf_obj, previous=0):
         """
