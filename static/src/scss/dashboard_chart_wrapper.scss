@@ -1,0 +1,81 @@
+.grid-stack-item-content {
+  transition: left 0.2s ease, top 0.2s ease, height 0.2s ease, width 0.2s ease;
+  inset: 4px !important;
+  border-radius: 4px;
+  background-color: $o-view-background-color;
+  border: 1px solid $o-gray-300;
+
+  &:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-color: $o-gray-400;
+
+    .button-box {
+      display: flex !important;
+    }
+  }
+
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .title {
+      font-size: 14px;
+      font-weight: 500;
+      color: $o-gray-900;
+    }
+
+    .button-box {
+      display: none;
+      align-items: center;
+      gap: 0.25rem;
+    }
+  }
+}
+
+.oe_progress {
+  @keyframes growProgressBar {
+    0%,
+    33% {
+      --pgPercentage: 0;
+    }
+    100% {
+      --pgPercentage: var(--value);
+    }
+  }
+
+  div[role="progressbar"] {
+    --size: 4rem;
+    --fg: #{$o-success};
+    --bg: #{$o-gray-300};
+    --pgPercentage: var(--value);
+    --background: var(--background);
+    animation: growProgressBar 2s 1 forwards;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(
+        closest-side,
+        white 74%,
+        transparent 0 102.9%,
+        white 0
+      ),
+      conic-gradient(var(--fg) calc(var(--pgPercentage) * 1%), var(--bg) 0);
+    font-size: calc(var(--size) / 4);
+    color: var(--fg);
+  }
+
+  div[role="progressbar"]::before {
+    counter-reset: percentage var(--value);
+    content: counter(percentage) "%";
+    width: 81%;
+    height: 81%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--background);
+  }
+}

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <record id="dashboard_principal_default" model="dashboard.dashboard">
+        <field name="name">Tablero Principal</field>
+        <field name="auto_reload_duration">120000</field>
+    </record>
+
+    <function name="create_update_menu" model="dashboard.dashboard">
+        <value eval="[ref('dashboard_principal_default')]" />
+    </function>
+</odoo>

@@ -1,0 +1,89 @@
+.o_mba_bi_dashboard_todo_preview {
+  font-family: $o-system-fonts;
+
+  .list-navigation {
+    background-color: $o-gray-100;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid $o-gray-300;
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+
+    .list-btn {
+      padding: 0.25rem 0.6rem;
+      border: 1px solid $o-gray-300;
+      background-color: $o-view-background-color;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      color: $o-gray-700;
+
+      &.active {
+        background-color: $o-brand-primary;
+        border-color: $o-brand-primary;
+        color: $white;
+      }
+    }
+  }
+
+  .todo-header {
+    background-color: $o-brand-primary;
+    color: $white;
+    padding: 0.75rem;
+    text-align: center;
+    border-radius: 4px 4px 0 0;
+
+    .todo-title {
+      color: $white;
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .todo-stats {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+  }
+
+  .todo-list {
+    padding: 0;
+    list-style: none;
+    margin-bottom: 0;
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid $o-gray-200;
+      transition: background-color 0.15s ease;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $o-gray-100;
+      }
+
+      .todo-text {
+        flex: 1;
+        font-size: 13px;
+        color: $o-gray-800;
+      }
+
+      &.completed {
+        &::before {
+          content: "✓";
+          color: $o-success;
+          font-weight: bold;
+          margin-right: 0.5rem;
+          font-size: 14px;
+        }
+
+        .todo-text {
+          text-decoration: line-through;
+          color: $o-gray-500;
+        }
+      }
+    }
+  }
+}

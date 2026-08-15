@@ -1,0 +1,28 @@
+.dashboard-selection {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 0.5rem;
+  column-gap: 0.75rem;
+
+  .select-option {
+    text-align: center;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-radius: 4px;
+    background-color: $o-gray-100;
+    border: 1px solid $o-gray-300;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+
+    &:hover {
+      background-color: $o-gray-200;
+      border-color: $o-gray-400;
+    }
+
+    &.selected {
+      background-color: $o-brand-primary;
+      border-color: $o-brand-primary;
+      color: $white;
+    }
+  }
+}

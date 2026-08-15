@@ -1,0 +1,327 @@
+# Spanish translation for Odoo module mba_bi_dashboard.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-13 12:00-0500\n"
+"PO-Revision-Date: 2026-02-13 12:00-0500\n"
+"Last-Translator: Gemini <gemini@example.com>\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_dashboard_tree_view
+msgid "View Charts"
+msgstr "Ver Gráficos"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_dashboard_form_view
+msgid "Create/Update Menu"
+msgstr "Crear/Actualizar Menú"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_dashboard_form_view
+msgid "Delete Menu"
+msgstr "Eliminar Menú"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_dashboard_form_view
+msgid "Add/Update Users"
+msgstr "Agregar/Actualizar Usuarios"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_dashboard_form_view
+msgid "Send by Email"
+msgstr "Enviar por Correo"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_dashboard_form_view
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+#: model:ir.actions.act_window,name:mba_bi_dashboard.dashboard_chart_action
+#: model:ir.ui.menu,name:mba_bi_dashboard.dashboard_chart_menu
+msgid "Charts"
+msgstr "Gráficos"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_dashboard_form_view
+msgid "Auto Update"
+msgstr "Actualización Automática"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_dashboard_form_view
+msgid "Email"
+msgstr "Correo Electrónico"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_filter
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Dashboard"
+msgstr "Tablero"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_filter
+msgid "Access By"
+msgstr "Acceso Por"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_filter
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Company"
+msgstr "Compañía"
+
+#. module: mba_bi_dashboard
+#: model:ir.actions.act_window,name:mba_bi_dashboard.dashboard_dashboard_action
+#: model:ir.ui.menu,name:mba_bi_dashboard.dashboard_dashboard_menu
+msgid "Dashboards"
+msgstr "Tableros"
+
+#. module: mba_bi_dashboard
+#: model:ir.actions.act_window,help:mba_bi_dashboard.dashboard_dashboard_action
+msgid "No Dashboards or were found."
+msgstr "No se encontraron Tableros."
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.menu,name:mba_bi_dashboard.parent_dashboard_menu
+msgid "BI Dashboard"
+msgstr "Tablero BI"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.menu,name:mba_bi_dashboard.dashboard_configuration_menu
+msgid "Configuration"
+msgstr "Configuración"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,name:mba_bi_dashboard.dashboard_access_view
+msgid "Re-sequence Journal Entries"
+msgstr "Re-secuenciar Asientos Contables"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_access_view
+#: model:ir.actions.act_window,name:mba_bi_dashboard.action_dashboard_access
+msgid "User Access"
+msgstr "Acceso de Usuario"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_access_view
+msgid "Confirm"
+msgstr "Confirmar"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_access_view
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "Dashboard Preview"
+msgstr "Vista Previa del Tablero"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "Name ..."
+msgstr "Nombre ..."
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "Data"
+msgstr "Datos"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "List Standard Fields"
+msgstr "Campos Estándar de Lista"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "List Measure Fields"
+msgstr "Campos de Medida de Lista"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "Date Default Filter"
+msgstr "Filtro de Fecha por Defecto"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "Target"
+msgstr "Objetivo"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "Layout"
+msgstr "Diseño"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "Item Actions"
+msgstr "Acciones de Elemento"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.dashboard_chart_form_view
+msgid "Advanced Configuration"
+msgstr "Configuración Avanzada"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Chart"
+msgstr "Gráfico"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "KPI"
+msgstr "KPI"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Tile View"
+msgstr "Vista de Tarjeta"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Bar Chart"
+msgstr "Gráfico de Barras"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Column Chart"
+msgstr "Gráfico de Columnas"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Doughnut Chart"
+msgstr "Gráfico de Dona"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Area Chart"
+msgstr "Gráfico de Área"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Funnel Chart"
+msgstr "Gráfico de Embudo"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Pyramid Chart"
+msgstr "Gráfico de Pirámide"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Line Chart"
+msgstr "Gráfico de Líneas"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Pie Chart"
+msgstr "Gráfico Circular"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Radial Chart"
+msgstr "Gráfico Radial"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Scatter Chart"
+msgstr "Gráfico de Dispersión"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "StackedColumn Chart"
+msgstr "Gráfico de Columnas Apiladas"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Meter Chart"
+msgstr "Gráfico de Medidor"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Map Chart"
+msgstr "Gráfico de Mapa"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "To Do"
+msgstr "Tareas Pendientes"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "List View"
+msgstr "Vista de Lista"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Apply Multiplier"
+msgstr "Aplicar Multiplicador"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Active"
+msgstr "Activo"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Archive"
+msgstr "Archivo"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Type"
+msgstr "Tipo"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Model"
+msgstr "Modelo"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "List Type"
+msgstr "Tipo de Lista"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "To Do Layout"
+msgstr "Diseño de Tareas Pendientes"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Group By"
+msgstr "Agrupar por"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Measure Field"
+msgstr "Campo de Medida"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Sort Order"
+msgstr "Orden de Clasificación"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Data Type"
+msgstr "Tipo de Dato"
+
+#. module: mba_bi_dashboard
+#: model:ir.ui.view,arch_db:mba_bi_dashboard.view_dashboard_chart_filter
+msgid "Date Filter Options"
+msgstr "Opciones de Filtro de Fecha"
+
+#. module: mba_bi_dashboard
+#: model:ir.actions.act_window,help:mba_bi_dashboard.dashboard_chart_action
+msgid "No Charts were found."
+msgstr "No se encontraron Gráficos."
+
+#. module: mba_bi_dashboard
+#: model:dashboard.dashboard,name:mba_bi_dashboard.my_dashboard_default
+msgid "My Dashboard"
+msgstr "Mi Tablero"
