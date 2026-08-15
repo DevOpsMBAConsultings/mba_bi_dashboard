@@ -1839,7 +1839,7 @@ class DashboardChart(models.Model):
                 lambda arft: not getattr(arft, conf_obj.sort_field)
             )
             all_records = sorted_record
-        if conf_obj.limit_record > 0:
+        if conf_obj.chart_type not in ["kpi", "tile"] and conf_obj.limit_record > 0:
             all_records = all_records[: conf_obj.limit_record]
 
         count = 0
