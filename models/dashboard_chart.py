@@ -2452,6 +2452,12 @@ class DashboardChart(models.Model):
                 "amount_tax_signed",
             ]:
                 measure_value = abs(measure_value or 0.0)
+            elif record._name == "stock.quant" and any(
+                kw in (conf_obj.name or "").lower()
+                for kw in ["valor", "estancado", "inmovilizado", "capital", "rotación", "rotacion"]
+            ):
+                field_desc = "Valor en Bodega (B/.)"
+                measure_value = (record.quantity or 0.0) * (record.product_id.standard_price or 0.0)
             multiplier = 1
             if conf_obj.is_apply_multiplier:
                 matched = next(
@@ -2737,6 +2743,21 @@ class DashboardChart(models.Model):
                     kw in (inv.invoice_payment_term_id.name or "").lower()
                     for kw in ("contado", "inmediato", "immediate")
                 )
+            )
+        elif conf_obj.model == "stock.quant" and any(
+            kw in (conf_obj.name or "").lower()
+            for kw in ["estancado", "inmovilizado", "sin rotación", "sin rotacion", "sin ventas"]
+        ):
+            date_30d = datetime.now() - timedelta(days=30)
+            recent_so_lines = self.env["sale.order.line"].search(
+                [
+                    ("order_id.state", "in", ("sale", "done")),
+                    ("order_id.date_order", ">=", date_30d),
+                ]
+            )
+            sold_prod_ids = set(recent_so_lines.mapped("product_id.id"))
+            records = records.filtered(
+                lambda q: q.product_id.id not in sold_prod_ids and q.quantity > 0
             )
 
         if not records:

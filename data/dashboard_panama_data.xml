@@ -492,27 +492,35 @@
         <field name="default_icon">bullseye</field>
     </record>
 
-    <!-- Gráfico 1: Movimientos por Tipo de Almacén -->
-    <record id="chart_movimientos_tipo" model="dashboard.chart">
-        <field name="name">Operaciones por Tipo de Almacén</field>
+    <!-- Gráfico 1: Top 10 Productos con Mayor Valor en Bodega -->
+    <record id="chart_top_productos_valor" model="dashboard.chart">
+        <field name="name">Top 10 Productos con Mayor Valor en Bodega</field>
         <field name="dashboard_id" ref="dashboard_panama_inventario"/>
-        <field name="chart_type">column_chart</field>
-        <field name="model_id" ref="stock.model_stock_picking"/>
-        <field name="group_by_id" ref="stock.field_stock_picking__picking_type_id"/>
+        <field name="chart_type">bar_chart</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="measurement_field_ids" eval="[(4, ref('stock.field_stock_quant__quantity'))]"/>
+        <field name="measurement_field_id" ref="stock.field_stock_quant__quantity"/>
+        <field name="group_by_id" ref="stock.field_stock_quant__product_id"/>
         <field name="sort_order">desc</field>
-        <field name="data_type">count</field>
+        <field name="domain">[('location_id.usage', '=', 'internal'), ('quantity', '>', 0)]</field>
+        <field name="data_type">sum</field>
+        <field name="limit_record">10</field>
         <field name="theme">animated</field>
     </record>
 
-    <!-- Gráfico 2: Distribución por Estado -->
-    <record id="chart_estado_operaciones" model="dashboard.chart">
-        <field name="name">Distribución por Estado de Operación</field>
+    <!-- Gráfico 2: Top Productos Estancados (Sin Ventas en 30 Días) -->
+    <record id="chart_productos_estancados" model="dashboard.chart">
+        <field name="name">Top Productos Estancados (Sin Ventas 30 Días)</field>
         <field name="dashboard_id" ref="dashboard_panama_inventario"/>
-        <field name="chart_type">pie_chart</field>
-        <field name="model_id" ref="stock.model_stock_picking"/>
-        <field name="group_by_id" ref="stock.field_stock_picking__state"/>
+        <field name="chart_type">bar_chart</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="measurement_field_ids" eval="[(4, ref('stock.field_stock_quant__quantity'))]"/>
+        <field name="measurement_field_id" ref="stock.field_stock_quant__quantity"/>
+        <field name="group_by_id" ref="stock.field_stock_quant__product_id"/>
         <field name="sort_order">desc</field>
-        <field name="data_type">count</field>
+        <field name="domain">[('location_id.usage', '=', 'internal'), ('quantity', '>', 0)]</field>
+        <field name="data_type">sum</field>
+        <field name="limit_record">10</field>
         <field name="theme">animated</field>
     </record>
 
