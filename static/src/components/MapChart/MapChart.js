@@ -80,8 +80,8 @@ export class MapChart extends Component {
     this.state.isError = false;
     this.state.errorMessage = false;
 
-    if (window.am5geodata_worldLow) {
-      echarts.registerMap("world", window.am5geodata_worldLow);
+    if (window.echarts_worldGeoJSON) {
+      echarts.registerMap("world", window.echarts_worldGeoJSON);
     }
 
     this.chartInstance = echarts.init(container);

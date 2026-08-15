@@ -1,4 +1,4 @@
-window.am5geodata_worldLow = (function () {
+window.echarts_worldGeoJSON = (function () {
 const map = { "type": "FeatureCollection", "features": [
         { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[179.2223, -8.554], [179.2023, -8.4653], [179.2312, -8.5048], [179.2223, -8.554]]] }, "properties": { "name": "Tuvalu", "id": "TV" }, "id": "TV" },
         { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[3.4624, -54.4471], [3.3461, -54.4511], [3.3669, -54.3997], [3.4814, -54.4001], [3.4624, -54.4471]]] }, "properties": { "name": "Bouvet Island", "id": "BV" }, "id": "BV" },

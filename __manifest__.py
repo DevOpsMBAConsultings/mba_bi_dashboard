@@ -2,7 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "Tableros de Inteligencia de Negocio BI (MBA Consultings)",
-    "version": "18.0.1.0.32",
+    "version": "18.0.1.0.33",
     "category": "Productivity/Analytics",
     "summary": "Cuadros de mando interactivos, KPIs ejecutivos y analítica en tiempo real para Panamá | MBA Consultings",
     "description": """
@@ -50,16 +50,7 @@ Características Principales:
             "mba_bi_dashboard/static/src/lib/html2canvas.js",
             "mba_bi_dashboard/static/src/lib/jspdf.js",
             "mba_bi_dashboard/static/src/lib/echarts/echarts.min.js",
-            "mba_bi_dashboard/static/src/lib/amcharts/index.js",
-            "mba_bi_dashboard/static/src/lib/amcharts/xy.js",
-            "mba_bi_dashboard/static/src/lib/amcharts/exporting.js",
-            "mba_bi_dashboard/static/src/lib/amcharts/map.js",
-            "mba_bi_dashboard/static/src/lib/amcharts/worldLow.js",
-            "mba_bi_dashboard/static/src/lib/amcharts/radar.js",
-            "mba_bi_dashboard/static/src/lib/amcharts/flow.js",
-            "mba_bi_dashboard/static/src/lib/amcharts/percent.js",
-            "mba_bi_dashboard/static/src/lib/amcharts/hierarchy.js",
-            "mba_bi_dashboard/static/src/lib/themes/**/*",
+            "mba_bi_dashboard/static/src/lib/echarts/world.js",
             "mba_bi_dashboard/static/src/lib/gridstack/**/*",
             "mba_bi_dashboard/static/src/js/dashboard_form_view.js",
             "mba_bi_dashboard/static/src/scss/dashboard_form_view.scss",
