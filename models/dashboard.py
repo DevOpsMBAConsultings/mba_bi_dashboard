@@ -648,7 +648,11 @@ class Dashboard(models.Model):
             return [1, []]
         chart_data_list = []
         grid_stack = self.grid_stack_dimensions or []
-        existing_ids = {g["chartId"] for g in grid_stack}
+        existing_ids = {
+            g.get("chartId") or (int(g["id"]) if "id" in g and str(g["id"]).isdigit() else g.get("id"))
+            for g in grid_stack
+            if isinstance(g, dict) and ("chartId" in g or "id" in g)
+        }
 
         user = self.env.user
         is_dashboard_user = False
@@ -688,7 +692,16 @@ class Dashboard(models.Model):
                 grid_stack.append(new_dim)
                 dim = new_dim
             else:
-                dim = next(g for g in grid_stack if g["chartId"] == chart.id)
+                dim = next(
+                    (g for g in grid_stack if isinstance(g, dict) and (g.get("chartId") == chart.id or g.get("id") == str(chart.id) or g.get("id") == chart.id)),
+                    {
+                        "chartId": chart.id,
+                        "x": 0,
+                        "y": 0,
+                        "h": 4 if chart.chart_type not in ["tile", "kpi"] else 2,
+                        "w": 6,
+                    }
+                )
             dim.update(
                 {
                     "minh": 4
