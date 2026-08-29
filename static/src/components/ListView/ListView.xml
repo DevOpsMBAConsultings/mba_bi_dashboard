@@ -13,7 +13,7 @@
                             <table t-attf-id="listPreview-{{props.chartId}}" t-if="state.data" class="table styled-table oe_dashboard_table">
                                 <thead>
                                     <tr>
-                                        <th t-foreach="this.state.columns" t-as="column" t-key="column.id" t-on-click="(ev) => sortTable(ev, column)" style="position: sticky; top: 0; background: var(--o-view-background-color, white); z-index: 2;">
+                                        <th t-foreach="this.state.columns" t-as="column" t-key="column.id" t-on-click="(ev) => this.sortTable(ev, column)" style="position: sticky; top: 0; background: var(--o-view-background-color, white); z-index: 2;">
                                             <t t-out="column.name" />
                                             <span t-attf-class="sort-icon fa {{state.columns_order[column['column_name']] == undefined || state.columns_order[column['column_name']] == 'desc' ? 'fa-angle-down' : 'fa-angle-up'}} ml-1">  </span>
                                         </th>
@@ -30,7 +30,7 @@
                                                 -
                                             </t>
                                         </td>
-                                        <td t-on-click="(ev) => openRecords(ev, record.currentIds)" class="btn_list_edit o_icon" style="cursor: pointer;">
+                                        <td t-on-click="(ev) => this.openRecords(ev, record.currentIds)" class="btn_list_edit o_icon" style="cursor: pointer;">
                                             <i class="fa fa-pencil-square-o"></i>
                                         </td>
                                     </tr>
@@ -49,7 +49,7 @@
                                  de <t t-out="state.totalRecords" /> registros</p>
                                 <div class="d-flex align-items-center gap-1">
                                     <button id="prevPage" t-att-disabled="state.currentPage &lt;= 1" t-on-click="() => this.changePage(-1)">⬅️ Anterior</button>
-                                    <input type="number" id="currentPage" min="1" t-att-max="state.totalPages" t-att-value="state.currentPage" t-on-change="goToPage" />
+                                    <input type="number" id="currentPage" min="1" t-att-max="state.totalPages" t-att-value="state.currentPage" t-on-change="(ev) => this.goToPage(ev)" />
                                     <button id="nextPage" t-att-disabled="state.currentPage &gt;= state.totalPages" t-on-click="() => this.changePage(1)">Siguiente ➡️</button>
                                 </div>
                             </div>

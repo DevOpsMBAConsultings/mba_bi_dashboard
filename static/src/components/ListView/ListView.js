@@ -30,38 +30,6 @@ export class ListView extends Component {
       totalPages: 0,
       dataModel: "",
     });
-    this.sortTable = (ev, column) => {
-      let current_order = this.state.columns_order[column["column_name"]];
-      this.state.columns_order = this.state.columns.reduce((acc, item) => {
-        acc[item.column_name] = undefined;
-        return acc;
-      }, {});
-      this.state.columns_order[column["column_name"]] =
-        current_order == "asc"
-          ? "desc"
-          : current_order == "desc"
-            ? "asc"
-            : "asc";
-    };
-
-    this.openRecords = async (ev, currentIds) => {
-      this.action.doAction({
-        type: "ir.actions.act_window",
-        name: this.state.chartName,
-        res_model: this.state.dataModel,
-        views: [[false, "list"]],
-        domain: [["id", "in", Object.values(currentIds)]],
-        target: "current",
-      });
-    };
-
-    this.goToPage = (ev) => {
-      this.state.currentPage = parseInt(ev.target.value);
-    };
-
-    this.changePage = (updateIndex) => {
-      this.state.currentPage = this.state.currentPage + updateIndex;
-    };
 
     useEffect(
       () => {
@@ -104,6 +72,40 @@ export class ListView extends Component {
     onMounted(() => {
       this.render_list_view();
     });
+  }
+
+  sortTable(ev, column) {
+    let current_order = this.state.columns_order[column["column_name"]];
+    this.state.columns_order = this.state.columns.reduce((acc, item) => {
+      acc[item.column_name] = undefined;
+      return acc;
+    }, {});
+    this.state.columns_order[column["column_name"]] =
+      current_order == "asc"
+        ? "desc"
+        : current_order == "desc"
+          ? "asc"
+          : "asc";
+  }
+
+  async openRecords(ev, currentIds) {
+    if (!currentIds) return;
+    this.action.doAction({
+      type: "ir.actions.act_window",
+      name: this.state.chartName,
+      res_model: this.state.dataModel,
+      views: [[false, "list"]],
+      domain: [["id", "in", Object.values(currentIds)]],
+      target: "current",
+    });
+  }
+
+  goToPage(ev) {
+    this.state.currentPage = parseInt(ev.target.value) || 1;
+  }
+
+  changePage(updateIndex) {
+    this.state.currentPage = this.state.currentPage + updateIndex;
   }
 
   render_list_view() {
