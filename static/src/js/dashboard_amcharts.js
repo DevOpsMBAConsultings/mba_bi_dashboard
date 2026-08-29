@@ -127,6 +127,7 @@ export class DashboardAmcharts extends Component {
       const dateRanges = dashboard.querySelectorAll(".o_bottom .o_date_range");
 
       let maxBottom = 0;
+      let maxRight = 0;
       const children = dashboard.children;
       for (let i = 0; i < children.length; i++) {
         const child = children[i];
@@ -151,14 +152,20 @@ export class DashboardAmcharts extends Component {
             });
           }
         }
-        // debugger;
         const bottom = child.offsetTop + child.offsetHeight;
         if (bottom > maxBottom) {
           maxBottom = bottom;
         }
+        const right = child.offsetLeft + child.offsetWidth;
+        if (right > maxRight) {
+          maxRight = right;
+        }
       }
 
-      dashboard.style.height = maxBottom + "px";
+      const captureWidth = maxRight > 0 ? maxRight + 20 : dashboard.scrollWidth;
+      const captureHeight = maxBottom + 20;
+
+      dashboard.style.height = captureHeight + "px";
       dashboard.style.overflow = "visible";
 
       setTimeout(() => {
@@ -166,40 +173,38 @@ export class DashboardAmcharts extends Component {
         html2canvas(dashboard, {
           useCORS: true,
           scale: 2, // higher quality capture
-          windowWidth: dashboard.scrollWidth,
-          windowHeight: maxBottom,
+          width: captureWidth,
+          height: captureHeight,
+          windowWidth: captureWidth,
+          windowHeight: captureHeight,
         })
           .then((canvas) => {
             const imgData = canvas.toDataURL("image/png");
-            // Create A4 PDF
+            // Create standard A4 PDF in points
             const pdf = new jspdf.jsPDF({
               orientation: "portrait",
-              unit: "px",
-              format: [canvas.width / 2, canvas.height / 2],
+              unit: "pt",
+              format: "a4",
             });
-            // , "p", "pt", "a4"
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            console.log("\n\n odoo_19_dashboard.conf pdfHeight :", pdfHeight);
-            // Keep width fitted, increase height a bit
-            const scaleFactor = 1.1; // <-- increase this to make it larger (e.g., 1.2)
-            const imgWidth = pdfWidth;
-            const imgHeight =
-              ((canvas.height * pdfWidth) / canvas.width) * scaleFactor;
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const margin = 20;
+            const printWidth = pageWidth - margin * 2;
+            const printHeight = (canvas.height * printWidth) / canvas.width;
 
-            let position = 0;
-            let heightLeft = imgHeight;
+            let position = margin;
+            let heightLeft = printHeight;
 
-            if (imgHeight <= pdfHeight) {
-              // Fits on one page
-              pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+            if (printHeight <= pageHeight - margin * 2) {
+              pdf.addImage(imgData, "PNG", margin, margin, printWidth, printHeight);
             } else {
-              // Multi-page
+              pdf.addImage(imgData, "PNG", margin, position, printWidth, printHeight);
+              heightLeft -= pageHeight - margin * 2;
               while (heightLeft > 0) {
-                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-                heightLeft -= pdfHeight;
-                position -= pdfHeight;
-                if (heightLeft > 0) pdf.addPage();
+                position = position - pageHeight + margin;
+                pdf.addPage();
+                pdf.addImage(imgData, "PNG", margin, position, printWidth, printHeight);
+                heightLeft -= pageHeight;
               }
             }
 
@@ -213,11 +218,9 @@ export class DashboardAmcharts extends Component {
           })
           .catch((error) => {
             console.error("PDF generation failed:", error);
-            dateRanges.forEach((el, i) => {
-              el.style.fontSize = "1vh";
-            });
+            self.ui.unblock();
           });
-      }, 100);
+      }, 500);
     };
 
     this.onSendEmail = async (ev) => {
