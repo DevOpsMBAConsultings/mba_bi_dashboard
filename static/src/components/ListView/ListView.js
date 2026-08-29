@@ -26,6 +26,7 @@ export class ListView extends Component {
       columns_order: {},
       currentRecords: [],
       currentPage: 1,
+      pageSize: 50,
       totalRecords: 0,
       totalPages: 0,
       dataModel: "",
@@ -62,11 +63,18 @@ export class ListView extends Component {
 
     useEffect(
       () => {
-        const start = (this.state.currentPage - 1) * 10;
-        const end = start + 10;
-        this.state.currentRecords = this.state.data.slice(start, end);
+        if (this.state.pageSize === 0 || this.state.pageSize >= this.state.data.length) {
+          this.state.currentRecords = this.state.data;
+          this.state.currentPage = 1;
+          this.state.totalPages = 1;
+        } else {
+          const start = (this.state.currentPage - 1) * this.state.pageSize;
+          const end = start + this.state.pageSize;
+          this.state.currentRecords = this.state.data.slice(start, end);
+          this.state.totalPages = Math.ceil(this.state.data.length / this.state.pageSize) || 1;
+        }
       },
-      () => [this.state.currentPage, ...this.state.data],
+      () => [this.state.currentPage, this.state.pageSize, ...this.state.data],
     );
 
     onMounted(() => {
@@ -104,6 +112,11 @@ export class ListView extends Component {
     this.state.currentPage = parseInt(ev.target.value) || 1;
   }
 
+  setPageSize(ev) {
+    this.state.pageSize = parseInt(ev.target.value);
+    this.state.currentPage = 1;
+  }
+
   changePage(updateIndex) {
     this.state.currentPage = this.state.currentPage + updateIndex;
   }
@@ -132,7 +145,10 @@ export class ListView extends Component {
 
     this.state.data = data.records;
     this.state.totalRecords = data.records.length;
-    this.state.totalPages = Math.ceil(data.records.length / 10);
+    this.state.totalPages =
+      this.state.pageSize === 0
+        ? 1
+        : Math.ceil(data.records.length / this.state.pageSize) || 1;
     this.state.dataModel = data.model;
   }
 }
