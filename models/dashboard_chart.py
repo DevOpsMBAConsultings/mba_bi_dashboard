@@ -2318,17 +2318,31 @@ class DashboardChart(models.Model):
         count2 = get_count2(all_records, conf_obj)
         compute_count = 0
         symbol = ""
+        is_monetary = False
+        company = (
+            self.env["res.company"].browse(conf_obj.company)
+            if conf_obj.company
+            else self.env.company
+        )
+        currency = company.currency_id or self.env.company.currency_id
         if conf_obj.show_unit:
             if conf_obj.unit_type == "monetary":
-                company = self.env["res.company"].browse(conf_obj.company)
+                is_monetary = True
                 symbol = "%s" % company.currency_id.symbol
             else:
                 symbol = "%s" % (conf_obj.custom_unit or "")
+        elif (
+            conf_obj.kpi_measurement_field_id
+            and conf_obj.kpi_measurement_field_id.ttype == "monetary"
+        ):
+            is_monetary = True
+
         def _fmt_val(val):
             if is_monetary:
-                return format_amount(record_obj.env, val, currency)
+                return format_amount(self.env, val, currency)
             if isinstance(val, (int, float)):
-                return f"{val:,.2f}" if val % 1 != 0 else f"{int(val):,}"
+                formatted = f"{val:,.2f}" if val % 1 != 0 else f"{int(val):,}"
+                return f"{symbol} {formatted}".strip() if symbol else formatted
             return str(val)
 
         kcmp_type = conf_obj.kpi_comparison_type
