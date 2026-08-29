@@ -162,8 +162,8 @@ export class DashboardAmcharts extends Component {
         }
       }
 
-      const captureWidth = maxRight > 0 ? maxRight + 20 : dashboard.scrollWidth;
-      const captureHeight = maxBottom + 20;
+      const captureWidth = maxRight > 0 ? maxRight + 10 : dashboard.scrollWidth;
+      const captureHeight = maxBottom > 0 ? maxBottom + 10 : dashboard.scrollHeight;
 
       dashboard.style.height = captureHeight + "px";
       dashboard.style.overflow = "visible";
@@ -172,25 +172,53 @@ export class DashboardAmcharts extends Component {
         self.ui.block();
         html2canvas(dashboard, {
           useCORS: true,
-          scale: 2, // higher quality capture
-          width: captureWidth,
-          height: captureHeight,
-          windowWidth: captureWidth,
-          windowHeight: captureHeight,
+          scale: 2,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: dashboard.scrollWidth,
+          windowHeight: dashboard.scrollHeight,
         })
           .then((canvas) => {
-            const imgData = canvas.toDataURL("image/png");
-            // Create standard A4 PDF in points
+            // Crear canvas recortado exactamente al área de los widgets
+            const scale = 2;
+            const cropW = Math.min(canvas.width, Math.round(captureWidth * scale));
+            const cropH = Math.min(canvas.height, Math.round(captureHeight * scale));
+
+            const croppedCanvas = document.createElement("canvas");
+            croppedCanvas.width = cropW;
+            croppedCanvas.height = cropH;
+            const ctx = croppedCanvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, cropW, cropH);
+            ctx.drawImage(
+              canvas,
+              0,
+              0,
+              cropW,
+              cropH,
+              0,
+              0,
+              cropW,
+              cropH
+            );
+
+            const imgData = croppedCanvas.toDataURL("image/png");
+
+            // Determinar orientacion óptima (horizontal si es ancho, vertical si es alto)
+            const isLandscape = cropW > cropH * 1.25;
+            const orientation = isLandscape ? "landscape" : "portrait";
+
             const pdf = new jspdf.jsPDF({
-              orientation: "portrait",
+              orientation: orientation,
               unit: "pt",
               format: "a4",
             });
+
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
             const margin = 20;
             const printWidth = pageWidth - margin * 2;
-            const printHeight = (canvas.height * printWidth) / canvas.width;
+            const printHeight = (cropH * printWidth) / cropW;
 
             let position = margin;
             let heightLeft = printHeight;
@@ -199,7 +227,7 @@ export class DashboardAmcharts extends Component {
               pdf.addImage(imgData, "PNG", margin, margin, printWidth, printHeight);
             } else {
               pdf.addImage(imgData, "PNG", margin, position, printWidth, printHeight);
-              heightLeft -= pageHeight - margin * 2;
+              heightLeft -= (pageHeight - margin * 2);
               while (heightLeft > 0) {
                 position = position - pageHeight + margin;
                 pdf.addPage();
