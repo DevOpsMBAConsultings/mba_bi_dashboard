@@ -51,6 +51,18 @@ export class DashboardAmcharts extends Component {
         this.grid.column(1);
       }
       this.update_timer();
+
+      // Fix: al montar el dashboard, GridStack calcula el ancho de las columnas usando el
+      // ancho del contenedor en ese instante. Si en ese momento el layout de Odoo todavía no
+      // terminó de asentarse (por ejemplo, la barra superior aún no sabe si va a aparecer un
+      // scrollbar vertical por el alto del grid), ese cálculo queda mal y se ve como iconos del
+      // systray/barra superior encimados — hasta que el usuario redimensiona la ventana a mano,
+      // lo cual dispara un evento "resize" que fuerza a recalcular todo correctamente.
+      // Disparamos ese mismo evento nosotros mismos, un instante después del mount, para que no
+      // haga falta que el usuario redimensione la ventana.
+      setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+      }, 300);
     });
 
     this.onUpdateExport = (chartId, chartDetails) => {
