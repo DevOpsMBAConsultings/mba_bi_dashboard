@@ -11,7 +11,6 @@ class ToDoAction(models.Model):
         "todo.action.line",
         "action_id",
         copy=True,
-        bypass_search_access=True,
         help="Set Action Line For To Do Actions.",
     )
     layout_id = fields.Many2one(

@@ -220,7 +220,6 @@ class DashboardChart(models.Model):
         "field_id",
         string="List Standard Fields",
         copy=True,
-        bypass_search_access=True,
         help="Select and add column fields for the standard list view.",
         tracking=True,
     )
@@ -235,7 +234,6 @@ class DashboardChart(models.Model):
         "measure_id",
         string="List Measure Fields",
         copy=True,
-        bypass_search_access=True,
         help="Select and add column fields for the standard list view.",
     )
 
@@ -254,7 +252,6 @@ class DashboardChart(models.Model):
         "layout_id",
         string="TODO Actions",
         copy=True,
-        bypass_search_access=True,
         help="Set action for information purpose.",
     )
 
