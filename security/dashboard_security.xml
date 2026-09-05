@@ -30,7 +30,7 @@
         ('chart_type', '=', 'to_do'),
         ('todo_layout', '=', 'activity'),
         '|',
-        ('model_id', 'in', [model.model_id.id for model in user.groups_id.model_access]),
+        ('model_id', 'in', [model.model_id.id for model in user.group_ids.model_access]),
         ('model_id', 'in', [model.model_id.id for model in user.model_access]),
     '&amp;','&amp;',
         ('chart_type', '=', 'to_do'),
@@ -39,7 +39,7 @@
     '&amp;',
         ('chart_type', '!=', 'to_do'),
         '|',
-        ('model_id', 'in', [model.model_id.id for model in user.groups_id.model_access]),
+        ('model_id', 'in', [model.model_id.id for model in user.group_ids.model_access]),
         ('model_id', 'in', [model.model_id.id for model in user.model_access]),
 
     '|',
@@ -48,7 +48,7 @@
         ('company_id', 'in', company_ids),
         '|', '|',
         ('kpi_model_id','=',False),
-        ('kpi_model_id', 'in', [model.model_id.id for model in user.groups_id.model_access]),
+        ('kpi_model_id', 'in', [model.model_id.id for model in user.group_ids.model_access]),
         ('kpi_model_id', 'in', [model.model_id.id for model in user.model_access])
 ]
             </field>

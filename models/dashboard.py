@@ -662,7 +662,7 @@ class Dashboard(models.Model):
             and not user.has_group("mba_bi_dashboard.group_dashboard_manager")
         ):
             is_dashboard_user = True
-        user_groups = user.groups_id.ids
+        user_groups = user.group_ids.ids
         for chart in self.chart_ids:
             if (
                 (chart.model_id and not user.has_read_access(chart.model_id))
