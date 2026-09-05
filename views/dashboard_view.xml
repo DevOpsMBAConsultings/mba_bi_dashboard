@@ -86,9 +86,9 @@
                 <field name="name" string="Nombre"/>
                 <field name="access_by" string="Acceso Por"/>
                 <field name="user_ids" string="Usuarios"/>
-                <group expand="0" string="Agrupar por">
+                <group>
                     <filter string="Tipo de Acceso" name="access_by" domain="[]" context="{'group_by': 'access_by'}"/>
-                    <filter string="Compañía" name="company_id" domain="[]" context="{'group_by': 'company_id'}" groups="!base.group_multi_company"/>
+                    <filter string="Compañía" name="company_id" domain="[]" context="{'group_by': 'company_id'}" groups="base.group_multi_company"/>
                 </group>
             </search>
         </field>
