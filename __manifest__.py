@@ -2,14 +2,14 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 {
     "name": "Tableros de Inteligencia de Negocio BI (MBA Consultings)",
-    "version": "18.0.1.0.49",
+    "version": "19.0.1.0.0",
     "category": "Productivity/Analytics",
     "summary": "Cuadros de mando interactivos, KPIs ejecutivos y analítica en tiempo real para Panamá | MBA Consultings",
     "description": """
 Tableros de Inteligencia de Negocio BI (MBA Consultings)
 =========================================================
 
-Suite ejecutiva de Inteligencia de Negocios y Analítica Visual diseñada para Odoo 18 Community Edition,
+Suite ejecutiva de Inteligencia de Negocios y Analítica Visual diseñada para Odoo 19 Community Edition,
 optimizada para la toma de decisiones estratégicas y adaptada al mercado empresarial de Panamá.
 
 Características Principales:
@@ -17,7 +17,7 @@ Características Principales:
 * **Visualizaciones Interactivas**: Soporte para más de 15 tipos de gráficos (Barras, Columnas, Líneas, Dona, Torta, Área, Embudo, Pirámide, Radar, Radial, Dispersión, Medidor, Mapas, Listas y Actividades).
 * **Motor Drag-and-Drop con GridStack**: Reorganización y dimensionamiento flexible de widgets y tableros.
 * **Métricas y KPIs en Tiempo Real**: Agregaciones dinámicas (Suma, Promedio, Conteo, Mínimo, Máximo) con agrupaciones por periodos fiscales y cronológicos.
-* **Diseño Nativo Odoo 18 CE**: Integración estética completa con el framework web de Odoo 18, paleta armónica y rendimiento óptimo.
+* **Diseño Nativo Odoo 19 CE**: Integración estética completa con el framework web de Odoo 19, paleta armónica y rendimiento óptimo.
 * **Exportación y Automatización**: Exportación de reportes en Excel, CSV, Imagen y PDF, con programación de envíos automáticos por correo electrónico.
 * **Control de Seguridad y Acceso**: Gestión granular de permisos por usuarios y grupos de seguridad.
     """,
