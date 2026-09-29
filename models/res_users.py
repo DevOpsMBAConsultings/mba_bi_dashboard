@@ -42,11 +42,11 @@ class Users(models.Model):
         return records
 
     @api.model
-    def name_search(self, name="", args=None, operator="ilike", limit=100):
+    def name_search(self, name="", domain=None, operator="ilike", limit=100):
         """
         Search user base on the dashboard access
         """
-        domain = list(args or [])
+        domain = list(domain or [])
         context = dict(self.env.context)
         if context.get("user_group_ids") and context.get("access_by") == "access_group":
             group_ids = self.env["res.groups"].browse(context["user_group_ids"])
@@ -61,8 +61,8 @@ class Users(models.Model):
         if context.get("access_by") == "user" and context.get("user_ids"):
             domain_list = [("id", "!=", self.env.user.id), ("share", "=", False)]
             domain = expression.AND([domain_list, domain])
-        return super(Users, self).name_search(
-            name=name, args=domain, operator=operator, limit=limit
+        return super().name_search(
+            name=name, domain=domain, operator=operator, limit=limit
         )
 
     def has_read_access(self, model_id):

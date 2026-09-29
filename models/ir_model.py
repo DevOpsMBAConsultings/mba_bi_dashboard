@@ -5,12 +5,12 @@ class IrModel(models.Model):
     _inherit = "ir.model"
 
     @api.model
-    def name_search(self, name="", args=None, operator="ilike", limit=100):
-        domain = list(args or [])
+    def name_search(self, name="", domain=None, operator="ilike", limit=100):
+        domain = list(domain or [])
         context = dict(self.env.context)
         if "dashboard_inner_model" in context:
-            return super(IrModel, self).name_search(
-                name=name, args=args, operator=operator, limit=limit
+            return super().name_search(
+                name=name, domain=domain, operator=operator, limit=limit
             )
         if "dashboard_model" in context:
             search_models = self.with_context(**{"dashboard_inner_model": True}).search(
@@ -23,8 +23,8 @@ class IrModel(models.Model):
                 ) and not isinstance(self.env[model_id.model], models.Model):
                     exclude_model_list.append(model_id.id)
             domain.append(("id", "not in", exclude_model_list))
-        return super(IrModel, self).name_search(
-            name=name, args=domain, operator=operator, limit=limit
+        return super().name_search(
+            name=name, domain=domain, operator=operator, limit=limit
         )
 
     @api.model

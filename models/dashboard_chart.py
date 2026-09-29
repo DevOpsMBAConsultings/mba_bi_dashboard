@@ -514,17 +514,17 @@ class DashboardChart(models.Model):
     hide_false_value = fields.Boolean(string="Hide False", default=True)
 
     @api.model
-    def name_search(self, name="", args=None, operator="ilike", limit=100):
+    def name_search(self, name="", domain=None, operator="ilike", limit=100):
         """
         Chart search list
         """
-        domain = list(args or [])
+        domain = list(domain or [])
         context = dict(self.env.context)
         if context.get("is_automated"):
             domain_list = [("chart_type", "in", ["kpi", "tile", "list", "to_do"])]
             domain = expression.AND([domain_list, domain])
-        return super(DashboardChart, self).name_search(
-            name=name, args=domain, operator=operator, limit=limit
+        return super().name_search(
+            name=name, domain=domain, operator=operator, limit=limit
         )
 
     @api.model
